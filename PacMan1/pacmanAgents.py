@@ -22,3 +22,4 @@ class GoWestPacman(Agent):
 			return Directions.WEST
 		else:
 			return Directions.STOP
+
