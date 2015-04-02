@@ -22,3 +22,12 @@ class GoWestPacman(Agent):
 			return Directions.WEST
 		else:
 			return Directions.STOP
+
+class ReinforcementPacman(Agent):
+	def getAction(self,state):
+		self.getReward(state)
+		return Directions.WEST
+	def getReward(self,state):
+		print state.getPacmanPosition()
+		print state.hasFood(*state.getPacmanPosition())
+
