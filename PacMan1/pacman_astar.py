@@ -1,4 +1,0 @@
-"""
-Pacman Astar
-
-"""
