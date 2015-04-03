@@ -23,7 +23,7 @@ class MovePacman(Agent):
 			return Directions.EAST
 		else:
 			print state.data.capsules
-			print state.data.
+			print state.data
 			return Directions.STOP
 		# pacman_location = 
 
