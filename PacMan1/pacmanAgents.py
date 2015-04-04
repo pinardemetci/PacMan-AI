@@ -5,6 +5,7 @@ Glue for interfacing with the Berkeley code.
 
 import numpy as np
 from game import Agent, Directions
+from layout import Layout
 
 class GoWestPacman(Agent):
 	"""
@@ -31,7 +32,6 @@ class ReinforcementPacman(Agent):
 		self.Q = None
 		self.R = None
 		self.gamma = 1
-
 	def getAction(self,state):
 		"""
 		Any Agent subclass must define a getAction method.
@@ -43,7 +43,7 @@ class ReinforcementPacman(Agent):
 		return Directions.STOP
 
 	def initializeMatrices(self):
-		states = self.data.layout.
+		#states = self.data.layout.
 		self.Q = np.zeros([widthheight])
 
 	def getReward(self, state):
@@ -62,13 +62,73 @@ class ReinforcementPacman(Agent):
 		"""
 		self.Q
 
+					
+class Node(object):
+	def __init__(self, position):
+		self.position = position
+	def isExplored(self):
+		pass
+
+class Edge(object):
+	def __init__(self, (Node1,Node2)):
+		self.Nodes=(Node1,Node2)
+	def isExplored(self):
+		pass
 
 class EncodedState(object):
+
 	"""
 	We might want this to be its own class?
 	"""
 	def __init__(self, layout):
-		for l in layout.asList()
+		for l in layout.getList():
+			if layout.isWall(l):
+				pass
+			else:
+				x,y = l
+				adjCoordinates=[]
+				adjCoordinates.append(layout.isWall((x+1,y)))
+				adjCoordinates.append(layout.isWall((x-1,y)))
+				adjCoordinates.append(layout.isWall((x,y+1)))
+				adjCoordinates.append(layout.isWall((x,y-1)))
+				count= adjCoordinates.count(True)
+				if count<=1:
+					enc_state[Node((x,y))]=[]
+
+		nodePositions=[]
+
+		for node in enc_state:
+			pos=node.position
+			nodePositions.append(pos)
+			#positive x axis
+			for i in range(100):
+				if (x+i,y) in nodePositions:
+					a=Edge((node, Node((x+i,y))))
+					enc_state[node].append(a)
+					break
+				else: pass
+			#negative x axis
+			for i in range(100):
+				if (x-i,y) in nodePositions:
+					a=Edge((node, Node((x+i,y))))
+					enc_state[node].append(a)
+					break
+				else: pass
+			#positive y axis
+			for i in range(100):
+				if (x,y+i) in nodePositions:
+					a=Edge((node, Node((x,y+i))))
+					enc_state[node].append(a)
+					break
+				else: pass
+			#negative y axis
+			for i in range(100):
+				if (x,y-i) in nodePositions:
+					a=Edge((node, Node((x,y-i))))
+					enc_state[node].append(a)
+					break
+				else: pass
+
 
 """
 How will we encode the states? Example: Ghost distance could be stored as the distance to the closest ghost,
