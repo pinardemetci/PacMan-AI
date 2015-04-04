@@ -28,8 +28,8 @@ class ReinforcementPacman(Agent):
 	def __init__(self):
 		super(Agent, self).__init__()
 		# How should we initialize these? When will we know the layout??
-		self.Q = np.zeros([1, 1])
-		self.R = np.zeros([1, 1])
+		self.Q = None
+		self.R = None
 		self.gamma = 1
 
 	def getAction(self,state):
@@ -41,6 +41,10 @@ class ReinforcementPacman(Agent):
 		"""
 		self.getReward(state)
 		return Directions.STOP
+
+	def initializeMatrices(self):
+		states = self.data.layout.
+		self.Q = np.zeros([widthheight])
 
 	def getReward(self, state):
 		# print state.getWalls().asList()
@@ -63,8 +67,8 @@ class EncodedState(object):
 	"""
 	We might want this to be its own class?
 	"""
-	def __init__(self):
-		pass
+	def __init__(self, layout):
+		for l in layout.asList()
 
 """
 How will we encode the states? Example: Ghost distance could be stored as the distance to the closest ghost,
