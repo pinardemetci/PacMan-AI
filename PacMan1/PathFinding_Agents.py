@@ -11,6 +11,7 @@ from game import Agent, Directions
 from numpy import zeros, matrix
 import random
 from os.path import exists
+from pickle import dump, load
 
 class QLearning(Agent):
 	"""
@@ -24,6 +25,7 @@ class QLearning(Agent):
 			[-1, -1, -1, 0, -1, 0, -1, -1], [-1, -1, -1, -1, 0, -1, 0, -1],
 			[-1, -1, -1, -1, -1, 0, -1, 100], [-1, -1, -1, -1, -1, -1, 0, 100]])
 		Q_matrix = zeros(shape = (8,8))
+		self.store_Q(Q_matrix)
 		state = 8 - state.getPacmanPosition()[0] #8 total states. Initialize
 		print "Pacman state", state
 		move_dir = self.Q_learningFunction(R_matrix, Q_matrix, state)
@@ -64,6 +66,16 @@ class QLearning(Agent):
 		return choose_action, index
 
 
-	def store_Q(self, Q):
+	def store_Q(self, Q, reset = True):
 		"""Store Q maxtrix"""
-		pass
+		Q_file = "Q_matrix.txt"
+		if reset:
+			counter = 1
+			with open(Q_file, "wb") as f:
+				dump (counter, f)
+				f.write(u'#' + '\t'.join(str(e) for e in Q.shape)+'\n')
+				Q.tofile(f)
+		else: 
+			counter == load(open(Q_file, 'rb'))
+			dump(counter + 1, open(Q_file, 'wb'))
+		return load(open(Q_file, 'rb'))
