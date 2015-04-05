@@ -7,7 +7,8 @@ Helped us better understand implementation in pacman program
 based on: http://mnemstudio.org/path-finding-q-learning-tutorial.htm
 """
 
-from game import Agent, Directions
+from game import Agent, Directions, GameStateData, Game
+# from pacman import Game
 from numpy import zeros, matrix
 import random
 from os.path import exists
@@ -17,22 +18,35 @@ class QLearning(Agent):
 	"""
 	Basic Pacman example doing Q-Learning
 	"""
-	def getAction(self, state):
-		legal_actions = state.getLegalActions()
-		legal_actions.remove('Stop')
-		R_matrix = matrix([[-1, 0, -1, -1, -1, -1, -1, -1], [0, -1, 0, -1, -1, -1, -1, -1], 
+	def __init__(self):
+		self.R_matrix = matrix([[-1, 0, -1, -1, -1, -1, -1, -1], [0, -1, 0, -1, -1, -1, -1, -1], 
 			[-1, 0, -1, 0, -1, -1, -1, -1], [-1, -1, 0, -1, 0, -1, -1, -1], 
 			[-1, -1, -1, 0, -1, 0, -1, -1], [-1, -1, -1, -1, 0, -1, 0, -1],
 			[-1, -1, -1, -1, -1, 0, -1, 100], [-1, -1, -1, -1, -1, -1, 0, 100]])
-		Q_matrix = zeros(shape = (8,8))
-		self.store_Q(Q_matrix)
-		state = 8 - state.getPacmanPosition()[0] #8 total states. Initialize
-		print "Pacman state", state
-		move_dir = self.Q_learningFunction(R_matrix, Q_matrix, state)
-		print Q_matrix
+		self.Q_matrix = zeros(shape = (8,8))
+		self.gamma = 0.5 
+
+
+	def getAction(self, state):
+		legal_actions = state.getLegalActions()
+		# print legal_actions
+		legal_actions.remove('Stop')
+		Pacstate = 8 - state.getPacmanPosition()[0] #8 total states. Initialize 
+		print "Pacman state", Pacstate
+		move_dir = self.Q_learningFunction(self.R_matrix, self.Q_matrix, Pacstate)
+		""" Updates Q Matrix with every pacman movement"""
+		# if Pacstate == 0:
+		# 	self.store_Q(self.Q_matrix)
+		# else:
+		# 	self.store_Q(self.Q_matrix, False)
+
+		""" Updates Q matrix at end of pacman game (Hard code)"""
+		if Pacstate == 6:
+			self.store_Q(self.Q_matrix)
+
 		if move_dir == "E" and "East" in legal_actions:
 			return Directions.EAST
-		if move_dir == "W" and "West" in legal_actions:
+		elif move_dir == "W" and "West" in legal_actions:
 			return Directions.WEST
 
 
@@ -43,9 +57,8 @@ class QLearning(Agent):
 		input: R_matrix, Q_matrix, pacman state
 		output: pacman direction based on algorithm
 		"""
-		gamma = 0.5 
 		best_action, action = self.choose_action(state, [R[state, state], R[state,state+1], R[state, state-1]])
-		Q[state,action] = R[state, action] + gamma*best_action
+		Q[state,action] = R[state, action] + self.gamma*best_action
 		if state > action:
 			return 'E'
 		elif state < action:
@@ -73,9 +86,11 @@ class QLearning(Agent):
 			counter = 1
 			with open(Q_file, "wb") as f:
 				dump (counter, f)
-				f.write(u'#' + '\t'.join(str(e) for e in Q.shape)+'\n')
-				Q.tofile(f)
+				f.write(str(Q))
+
 		else: 
-			counter == load(open(Q_file, 'rb'))
-			dump(counter + 1, open(Q_file, 'wb'))
+			counter = load(open(Q_file, 'rb'))
+			with open(Q_file, "wb") as f:
+				dump (counter + 1, f)
+				f.write(str(Q))
 		return load(open(Q_file, 'rb'))
