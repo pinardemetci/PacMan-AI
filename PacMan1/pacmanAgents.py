@@ -36,7 +36,6 @@ class SimpleExplorationPacman(Agent):
 	actually qualify as q-learning, but you know, baby steps.
 	"""
 	def __init__(self):
-<<<<<<< HEAD
 		super(Agent, self).__init__()  # call the parent's init function
 		self.Q = [0, 0]  # Q always initializes with zeros
 		self.R = [1, 5]  # hard-coding R for now
@@ -44,14 +43,6 @@ class SimpleExplorationPacman(Agent):
 		self.exploredCoords = set()  # set of coordinates Pacman has been to
 
 	def getAction(self, state):
-=======
-		super(Agent, self).__init__()
-		# How should we initialize these? When will we know the layout??
-		self.Q = None
-		self.R = None
-		self.gamma = 1
-	def getAction(self,state):
->>>>>>> 314770c2d3ca728e7e90661688b904c36cdb8cb3
 		"""
 		Any Agent subclass must define a getAction method.
 
@@ -59,16 +50,10 @@ class SimpleExplorationPacman(Agent):
 		returns: the direction PacMan should go (e.g. Directions.NORTH)
 		"""
 
-<<<<<<< HEAD
 		# add current position to exploredCoords
 		self.exploredCoords.add(state.getPacmanPosition())
 
 		rewards = self.getActionRewards(state, state.getLegalActions())
-=======
-	def initializeMatrices(self):
-		#states = self.data.layout.
-		self.Q = np.zeros([widthheight])
->>>>>>> 314770c2d3ca728e7e90661688b904c36cdb8cb3
 
 		if self.goRandomDirection():
 			direction = random.choice(state.getLegalActions())
@@ -107,81 +92,10 @@ class SimpleExplorationPacman(Agent):
 		newState: 0 or 1 (explored or unexplored) -- sorry this is confusing
 		legalActions: [0] or [0, 1] depending on if any unexplored cells are legally moveable-to
 		"""
-<<<<<<< HEAD
 		self.Q[newState] = self.R[newState] + self.gamma * max(filter(lambda x: x in legalActions, self.Q))
 		print self.Q
 
-=======
-		self.Q
 
-					
-class Node(object):
-	def __init__(self, position):
-		self.position = position
-	def isExplored(self):
-		pass
-
-class Edge(object):
-	def __init__(self, (Node1,Node2)):
-		self.Nodes=(Node1,Node2)
-	def isExplored(self):
-		pass
-
-class EncodedState(object):
-
-	"""
-	We might want this to be its own class?
-	"""
-	def __init__(self, layout):
-		for l in layout.getList():
-			if layout.isWall(l):
-				pass
-			else:
-				x,y = l
-				adjCoordinates=[]
-				adjCoordinates.append(layout.isWall((x+1,y)))
-				adjCoordinates.append(layout.isWall((x-1,y)))
-				adjCoordinates.append(layout.isWall((x,y+1)))
-				adjCoordinates.append(layout.isWall((x,y-1)))
-				count= adjCoordinates.count(True)
-				if count<=1:
-					enc_state[Node((x,y))]=[]
-
-		nodePositions=[]
-
-		for node in enc_state:
-			pos=node.position
-			nodePositions.append(pos)
-			#positive x axis
-			for i in range(100):
-				if (x+i,y) in nodePositions:
-					a=Edge((node, Node((x+i,y))))
-					enc_state[node].append(a)
-					break
-				else: pass
-			#negative x axis
-			for i in range(100):
-				if (x-i,y) in nodePositions:
-					a=Edge((node, Node((x+i,y))))
-					enc_state[node].append(a)
-					break
-				else: pass
-			#positive y axis
-			for i in range(100):
-				if (x,y+i) in nodePositions:
-					a=Edge((node, Node((x,y+i))))
-					enc_state[node].append(a)
-					break
-				else: pass
-			#negative y axis
-			for i in range(100):
-				if (x,y-i) in nodePositions:
-					a=Edge((node, Node((x,y-i))))
-					enc_state[node].append(a)
-					break
-				else: pass
-
->>>>>>> 314770c2d3ca728e7e90661688b904c36cdb8cb3
 
 	def goRandomDirection(self):
 		"""
