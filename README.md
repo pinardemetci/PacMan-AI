@@ -3,10 +3,10 @@ SofDes Spring'15 final project by Kelly Brennan, Stephanie Northway, and Pinar D
 The project aims to use AI and machine learning strategies for pathfinding in PacMan. 
 
 PROJECT PROPOSAL:
-Big Idea:  We aim to implement computer learning to strategize and win Pacman game. We’ll be exploring AI concepts to develop game strategies.
-  MVP: 
+- Big Idea:  We aim to implement computer learning to strategize and win Pacman game. We’ll be exploring AI concepts to develop game strategies.
+- MVP: 
     Plays pacman without the ghosts and implements pathfinding and a simple AI strategy to         consume food in the     shortest amount of time
-  Stretched goals:
+- Stretched goals:
     Plays pacman well with ghosts
     Implement a neural network
 
