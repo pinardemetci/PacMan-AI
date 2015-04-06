@@ -67,10 +67,13 @@ class SimpleExplorationPacman(Agent):
 
 	def getReward(self, state, action):
 		"""
-		Checks the Q matrix to see what we've got
-		"""
+		Checks the Q matrix to see what we've got.
+
+		Eventually we'll need a mapping between thes=		"""
+		# if it's explored, return the "explored" Q value
 		if state.generatePacmanSuccessor(action).getPacmanPosition() in self.exploredCoords:
 			return self.Q[0]
+		# otherwise return the "unexplored" Q value
 		else:
 			return self.Q[1]
 
