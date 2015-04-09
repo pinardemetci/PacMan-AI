@@ -7,9 +7,11 @@ import operator
 import random
 
 import numpy as np
+import pandas as pd
 
 from game import Agent, Directions
 from layout import Layout
+from util import manhattanDistance
 
 class GoWestPacman(Agent):
 	"""
@@ -111,3 +113,63 @@ class SimpleExplorationPacman(Agent):
 			return True
 		else:
 			return False
+
+
+STATES = {
+'g1_dist': 0,
+'g2_dist': 0,
+'c1_dist': 0, 
+'c2_dist': 0,
+'p_frac': 0
+}
+
+class PyBrainPacman(Agent):
+	"""
+	An agent based on what I just read on PyBrain's Q-learning tutorial thingy.
+
+	It will need to have a CONTROLLER, to map states to actions;
+	a LEARNER, which updates the controller parameters according to its interactions with the world;
+	and an EXPLORER, which tells it when to do a less-than-optimal action.
+	"""
+
+	def __init__(self):
+		super(Agent, self).__init__()  # call the parent's init function
+		self.Q = pd.Series(STATES)  # Q initializes with zeros
+		self.pellets_remaining = 0
+		self.g1_dist = 0
+		self.g2_dist = 0
+		self.capsules = 0
+		initialized = False
+		# self.gamma = 0.5  # exploration parameter
+		# self.exploredCoords = set()  # set of coordinates Pacman has been to
+
+	def getAction(self, state):
+		"""
+		I think this is the controller. Takes in a state, returns an action.
+		"""
+		pos = state.getPacmanPosition()
+
+		if not initialized:
+			self.pellets_remaining = state.getNumFood()
+			self.g1_dist = manhattanDistance(pos, state.getGhostPosition(1))
+			self.g2_dist = manhattanDistance(pos, state.getGhostPosition(2))
+			self.capsules = len(state.getCapsules())
+
+	def getReward(self, state):
+		"""
+		Function to determine the reward of the action that just happened.
+		"""
+		pos = state.getPacmanPosition()
+
+		delta_food = self.pellets_remaining - state.getNumFood()
+		delta_g1 = self.g1_dist - manhattanDistance(pos, state,getGhostPosition(1))
+		delta_g2 = self.g2_dist - manhattanDistance(pos, state.getGhostPosition(2))
+		delta_capsules = self.capsules - len(state.getCapsules())
+
+		return 2 * delta_food + 3 * delta_g1 + 3 * delta_g2 + 6 * delta_capsules
+
+
+	def updateQ(self):
+		"""
+		Q(s, a) = Q(s, a) + alpha * []
+		"""
