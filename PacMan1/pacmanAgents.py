@@ -140,7 +140,7 @@ class PyBrainPacman(Agent):
 		self.g2_dist = 0
 		self.capsules = 0
 		initialized = False
-		# self.gamma = 0.5  # exploration parameter
+		self.explorationRate = 0.2  # exploration parameter
 		# self.exploredCoords = set()  # set of coordinates Pacman has been to
 
 	def getAction(self, state):
@@ -154,6 +154,13 @@ class PyBrainPacman(Agent):
 			self.g1_dist = manhattanDistance(pos, state.getGhostPosition(1))
 			self.g2_dist = manhattanDistance(pos, state.getGhostPosition(2))
 			self.capsules = len(state.getCapsules())
+
+		if isExploring():
+			# do some sort of softmax
+			pass
+		else:
+			# get the best action to do next...
+
 
 	def getReward(self, state):
 		"""
@@ -169,7 +176,24 @@ class PyBrainPacman(Agent):
 		return 2 * delta_food + 3 * delta_g1 + 3 * delta_g2 + 6 * delta_capsules
 
 
-	def updateQ(self):
+	def updateQ(self, action, reward):
 		"""
-		Q(s, a) = Q(s, a) + alpha * []
+		Q(s) = Q(s) + alpha * [r + gamma * max(Q(s')) - Q(s, a)]
 		"""
+
+	def qFunction(self):
+		"""
+		The thing that is q
+		"""
+		return self.Q.g1_dist
+
+	def isExploring(self):
+		"""
+		Same as goRandomDirection from other PacMan
+		"""
+
+		r = random.random()
+		if r < self.explorationRate:
+			return True
+		else:
+			return False
