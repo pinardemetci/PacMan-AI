@@ -9,14 +9,10 @@ based on: http://mnemstudio.org/path-finding-q-learning-tutorial.htm
 
 from game import Agent, Directions, GameStateData, Game
 # from pacman import Game
-from numpy import zeros, matrix, array
-from joblib import dump, load
+from numpy import zeros, matrix
 import random
 from os.path import exists
-import pickle
-# from pickle import dump, load
-import time
-import csv
+from pickle import dump, load
 
 class QLearning(Agent):
 	"""
@@ -27,10 +23,8 @@ class QLearning(Agent):
 			[-1, 0, -1, 0, -1, -1, -1, -1], [-1, -1, 0, -1, 0, -1, -1, -1], 
 			[-1, -1, -1, 0, -1, 0, -1, -1], [-1, -1, -1, -1, 0, -1, 0, -1],
 			[-1, -1, -1, -1, -1, 0, -1, 100], [-1, -1, -1, -1, -1, -1, 0, 100]])
-		# self.Q_matrix = zeros(shape = (8,8))
-		self.Q_matrix = self.return_Q() #zeros(shape = (8,8))#self.return_Q()
+		self.Q_matrix = zeros(shape = (8,8))
 		self.gamma = 0.5 
-		self.counter = pickle.load(open("counter.p", 'rb'))
 
 
 	def getAction(self, state):
@@ -38,7 +32,7 @@ class QLearning(Agent):
 		# print legal_actions
 		legal_actions.remove('Stop')
 		Pacstate = 8 - state.getPacmanPosition()[0] #8 total states. Initialize 
-		print "Pacman state", Pacstate
+		# print "Pacman state", Pacstate
 		move_dir = self.Q_learningFunction(self.R_matrix, self.Q_matrix, Pacstate)
 		""" Updates Q Matrix with every pacman movement"""
 		# if Pacstate == 0:
@@ -48,8 +42,9 @@ class QLearning(Agent):
 
 		""" Updates Q matrix at end of pacman game (Hard code)"""
 		if Pacstate == 6:
-			self.store_Q(self.Q_matrix, self.counter)
+			self.store_Q(self.Q_matrix)
 
+		#print type(state)
 		if state.isWin() == True:
 			print "I win"
 
@@ -67,7 +62,6 @@ class QLearning(Agent):
 		output: pacman direction based on algorithm
 		"""
 		best_action, action = self.choose_action(state, [R[state, state], R[state,state+1], R[state, state-1]])
-		print best_action, action
 		Q[state,action] = R[state, action] + self.gamma*best_action
 		if state > action:
 			return 'E'
@@ -89,25 +83,18 @@ class QLearning(Agent):
 		return choose_action, index
 
 
-	def store_Q(self, Q, counter, reset = False):
-		"""Store Q matrix
-		input: Q matrix to be stored, counter
-		output: pickling files with data
-		"""
-		Q_file = "Q_matrix.p"
-		print Q
-		if counter == 0 or reset:
+	def store_Q(self, Q, reset = True):
+		"""Store Q maxtrix"""
+		Q_file = "Q_matrix.txt"
+		if reset:
 			counter = 1
-			dump(Q, Q_file)
-			pickle.dump(counter, open("counter.p", 'wb'))
+			with open(Q_file, "wb") as f:
+				dump (counter, f)
+				f.write(str(Q))
+
 		else: 
-			pickle.dump(counter + 1, open("counter.p", "wb"))
-			dump(Q, Q_file)
-
-
-	def return_Q(self):
-		""" Retrieves the Q matrix stored in Q_matrix.p
-		output = Q_matrix
-		"""
-		Q_new = load("Q_matrix.p")
-		return Q_new
+			counter = load(open(Q_file, 'rb'))
+			with open(Q_file, "wb") as f:
+				dump (counter + 1, f)
+				f.write(str(Q))
+		return load(open(Q_file, 'rb'))
