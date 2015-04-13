@@ -91,6 +91,10 @@ class GameState:
         else:
             return GhostRules.getLegalActions( self, agentIndex )
 
+    def getLegalActions_Tile(configuration, state):
+        return Actions.getPossibleActions (configuration, state.data.layout.walls)
+    getLegalActions_Tile = staticmethod( getLegalActions_Tile )
+
     def generateSuccessor( self, agentIndex, action):
         """
         Returns the successor state after the specified agent takes the action.
@@ -333,6 +337,10 @@ class PacmanRules:
         """
         return Actions.getPossibleActions( state.getPacmanState().configuration, state.data.layout.walls )
     getLegalActions = staticmethod( getLegalActions )
+
+    def getLegalActions_Tile(configuration):
+        return Actions.getPossibleActions (configuration, state.data.layout.walls)
+    getLegalActions_Tile = staticmethod( getLegalActions_Tile )
 
     def applyAction( state, action ):
         """

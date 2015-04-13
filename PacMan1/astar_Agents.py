@@ -34,9 +34,6 @@ class AstarPacman(Agent):
 		while len(self.open_list) > 0:
 			pass
 
-
-
-
 	def getAction(self, state):
 		"""
 		Pacman moves east
@@ -45,36 +42,53 @@ class AstarPacman(Agent):
 		self.capsule1_coords = state.data.capsules[0] 
 		self.capsule2_coords = state.data.capsules[1]
 
-		# coord_s = self.coordinates
-		# cells_s = self.cells[coord_s]
-
 		g_cost = 0 #Cost from starting along the best known path
 		h_cost = self.get_h_cost(self.coordinates, self.capsule1_coords)
-		# self.open_list = [self.coordinates]
-		while len(self.open_list) > 0:
-			"""Insert function that calculates the get_lowest_cost_open_coord
-			- Don't need this because get_legal_coords does this
-			"""
-			print self.open_list
-			print self.coordinates
-			self.open_list = [self.coordinates]
-			self.open_list.remove(self.coordinates)
-			self.closed_list.append(self.coordinates)
-			open_coords, costs = self.get_open_adj_coords(state, self.coordinates)
-			for idx, coord in enumerate(open_coords):
-				print "idx =", idx
-				print "coord =", coord
+		f_cost = {}
+		# f_cost = {g_cost + h_cost: None}
+		# print f_cost
+		# print state.data.capsules
+		# print self.coordinates
+		self.open_list = [self.coordinates]
+		# self.came_from = [self.coordinates]
+		# while len(self.open_list) > 0:
 
-				g_cost = g_cost + costs[idx]
-				h_cost = self.get_h_cost(self.coordinates, self.capsule1_coords)
-				f_cost = g_cost + h_cost
-				if coord in self.open_list:
-					old_f_cost = f_cost
-					if f_cost < old_f_cost:
-						parent_coords = self.coordinates
-				else:
-					self.open_list.append(coord)
-					parents_coords = self.coordinates
+		"""Insert function that calculates the get_lowest_cost_open_coord
+		- Don't need this because get_legal_coords does this
+		"""
+		# print self.open_list
+		# print self.coordinates
+		# self.open_list = [self.coordinates]
+		# self.open_list.remove(self.coordinates)
+		self.closed_list.append(self.coordinates)
+		open_coords, direction, costs = self.get_open_adj_coords(state, self.coordinates)
+		for idx, coord in enumerate(open_coords):
+			# print "idx =", idx
+			# print "coord =", coord
+
+			g_cost = g_cost + costs[idx]
+			h_cost = self.get_h_cost(self.coordinates, self.capsule1_coords)
+			# f_cost = g_cost + h_cost
+
+			if coord not in self.open_list:
+				self.came_from.append(self.coordinates)
+				f_cost[g_cost + h_cost] = [coord, direction[idx]]
+				self.open_list.append(coord)
+		print g_cost, h_cost, f_cost
+		new_coords = f_cost[min(f_cost.keys())][0]
+		# print new_coords
+		d = f_cost[min(f_cost.keys())][1]
+		# print d
+
+
+				# if coord not in self.open_list:
+					# came_from.append(self.coordinates)
+				# 	old_f_cost = f_cost
+				# 	if f_cost < old_f_cost:
+				# 		parent_coords = self.coordinates
+				# else:
+					# self.open_list.append(coord)
+				# 	parents_coords = self.coordinates
 
 		# coords = self.get_lowest_cost_open_coord()
 
@@ -94,7 +108,6 @@ class AstarPacman(Agent):
 			return Directions.EAST
 		else:
 			return Directions.STOP
-		# pacman_location = state.data
 
 
 	def get_h_cost(self, coord_a, coord_b):
@@ -106,26 +119,33 @@ class AstarPacman(Agent):
 		"""returns list of valid coords that are adj. to the pacman, open 
 		(and are not in the closed list(?))"""
 		adj_coords = []
+		d = []
 		directions = state.getLegalActions()
 		directions.remove("Stop")
 		if "West" in directions:
 			W_coords = (coords[0]-1, coords[1])
+			d.append("West")
 			adj_coords.append(W_coords)
 		if "East" in directions:
 			E_coords = (coords[0]+1, coords[1])
+			d.append("East")
 			adj_coords.append(E_coords)
 		if "North" in directions:
 			N_coords = (coords[0], coords[1]+1)
 			adj_coords.append(N_coords)
+			d.append("North")
 		if "South" in directions:
 			S_coords = (coords[0], coords[1]-1)
+			d.append("South")
+			adj_coords.append(S_coords)
 		costs = [1]*len(adj_coords)
 
 		
 		# print directions #.remove("Stop")
 		# print costs
 		# print adj_coords
-		return adj_coords, costs
+		# print direction
+		return adj_coords, d, costs
 
 	
 	def get_lowest_cost_open_coord(self):
