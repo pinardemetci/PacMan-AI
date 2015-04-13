@@ -30,6 +30,7 @@ class Astar2Pacman(Agent):
 		self.open_list = [] #Set of nodes already evaluated
 		self.closed_list = [] #Tentative nodes to be evaluated
 		# self.came_from = [] #map of navigated nodes
+		# self.direction = []
 		self.current_tile = []
 
 		costs = {} #The size of the game board to store g, h and f cost values
@@ -38,33 +39,35 @@ class Astar2Pacman(Agent):
 				costs[(x, y)] = Tile((x,y))
 		costs[self.coordinates].g_cost = 0
 		costs[self.coordinates].h_cost = self.get_h_cost(start, goal)
+		costs[self.coordinates].f_cost = costs[self.coordinates].g_cost + costs[self.coordinates].h_cost
 
-		g_cost = 0 #Cost from starting along the best known path 
-		h_cost = self.get_h_cost(self.coordinates, self.capsule1_coords)
+		self.open_list.append(costs[self.coordinates])
 
-		self.open_list.append(self.coordinates)
-		self.closed_list.append(self.coordinates)
-		open_coords, direction, tile_cost = self.get_open_adj_coords(state, self.coordinates)
-		for i, coord in enumerate(open_coords):
-			costs[coord].g_cost = g_cost + tile_cost[i]
-			costs[coord].h_cost = self.get_h_cost(coord, goal)
-			costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
-			# print costs[coord].f_cost
+		while len(self.open_list) > 0:
+			tile = self.get_lowest_cost_open_coord(self.open_list)
+			self.open_list.append(tile)
 
-		# 	h_cost = self.get_h_cost(self.coordinates, self.capsule1_coords)
-		# 	# f_cost = g_cost + h_cost
+			open_coords, relative_direction, tile_cost = self.get_open_adj_coords(state, tile.coordinates)
+			for i, coord in enumerate(open_coords):
+				if coord == goal:
+					print reconstruct_path(open_list, coord)
+				costs[coord].g_cost = tile.g_cost + tile_cost[i]
+				costs[coord].h_cost = self.get_h_cost(coord, goal)
+				costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
+				
+				if coord in self.closed_list:
+					pass
+				elif coord not in self.open_list:
+					self.open_list.append(costs[coord])
+					costs[coord].g_cost = tile.g_cost + tile_cost[i]
+					costs[coord].h_cost = self.get_h_cost(coord, goal)
+					costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
+					costs[coord].parent = tile
+				elif coord in self.open_list:
+					if costs[coord].f_cost > costs[coord].g_cost + costs[coord].h_cost:
+						costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
+						costs[coord].parent = tile
 
-		# 	if coord not in self.open_list:
-		# 		self.came_from.append(self.coordinates)
-		# 		f_cost[g_cost + h_cost] = [coord, direction[idx]]
-		# 		self.open_list.append(coord)
-		# print g_cost, h_cost, f_cost
-		# new_coords = f_cost[min(f_cost.keys())][0]
-		# # print new_coords
-		# d = f_cost[min(f_cost.keys())][1]
-
-		# while len(self.open_list) > 0:
-		# 	pass
 
 	def getAction(self, state):
 		"""
@@ -75,13 +78,6 @@ class Astar2Pacman(Agent):
 		self.capsule2_coords = state.data.capsules[1]
 
 		self.Astar(state, self.coordinates, self.capsule1_coords)
-
-
-		"""Insert function that calculates the get_lowest_cost_open_coord
-		- Don't need this because get_legal_coords does this
-		"""
-
-
 
 		legal_actions = state.getLegalActions()
 		if "East" in legal_actions:
@@ -124,24 +120,28 @@ class Astar2Pacman(Agent):
 			adj_coords.append(S_coords)
 		costs = [1]*len(adj_coords)
 
-		
-
 		return adj_coords, d, costs
 
 	
-	def get_lowest_cost_open_coord(self):
-		pass
-		# open_cells = self.open_list
-		# sorted_cells = sorted(open_cells, key = lambda s: self.cells[s].f_cost)
-		# costs = map(lambda c: self.cells[c].f_cost, sorted_cells)
-		# return sorted_cells[0]
+	def get_lowest_cost_open_coord(self, open_list):
+		"""Return the tile with the lowest cost"""
+		return sorted(open_list, key = lambda t: t.f_cost)[0]
+
+
+	def reconstruct_path(open_list, current):
+		total_path = [current]
+		while current in open_list:
+			total_path.append(current)
+		return total_path
+
 
 class Tile():
 	"""
 	For example layout, food is in [(18, 1), (1,9)]. Bottom left-hand corner = (1,1)
 	"""
-	def __init__(self, coordinates, g_cost = None, h_cost = None, f_cost = None):
+	def __init__(self, coordinates, parent = None, g_cost = None, h_cost = None, f_cost = None):
 		self.coordinates = coordinates
+		self.parent = parent
 		self.g_cost = g_cost
 		self.h_cost = h_cost
 		self.f_cost = f_cost
