@@ -41,9 +41,12 @@ The project aims to use AI and machine learning strategies for pathfinding in Pa
 
 <ul>
 <li>Project Proposal</li>
+<li>Technical Review Preparation</li>
 <li>Design Review Preparation</li>
 <li>Design Review Reflection</li>
 </ul>
+
+<p><strong>Note:</strong> Soon, we will start using Jekyll on our website to stucture it better instead of presenting everything on one page. Thanks for your patience. </p>
 
 <h1>
 <a id="project-proposal" class="anchor" href="#project-proposal" aria-hidden="true"><span class="octicon octicon-link"></span></a>Project Proposal:</h1>
@@ -152,22 +155,80 @@ The project aims to use AI and machine learning strategies for pathfinding in Pa
 
 <ul>
 <li>Covering more AI and machine learning related concepts -additional to the toolboxes- would be useful. </li>
-<li>Coding/data processing efficiency #Code Review I: Preparation and Framing</li>
+<li>Coding/data processing efficiency </li>
 </ul>
+
+<h1>
+<a id="code-review-i-preparation-and-framing" class="anchor" href="#code-review-i-preparation-and-framing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code Review I: Preparation and Framing</h1>
 
 <h2>
 <a id="background-and-context" class="anchor" href="#background-and-context" aria-hidden="true"><span class="octicon octicon-link"></span></a>
 <strong>Background and Context</strong>:</h2>
 
 <ul>
-<li>Project goal: Develop our own artificial intelligence algorithm for the pacman agent to learn how to play based on the agent’s experience in earning rewards by acting on different states</li>
-<li>* Continuing to use the UC Berkeley code as the foundation of our AI algorithm</li>
+<li>Project goal: Develop our own artificial intelligence algorithm for the pacman agent to learn how to play based on the agent’s experience in earning rewards by acting on different states
+
+<ul>
+<li>Continuing to use the UC Berkeley code as the foundation of our AI algorithm</li>
+</ul>
+</li>
 <li>We have abstracted the game by focusing on agent collecting food and not including ghosts (... for now…)</li>
-<li>Plan to implement Q learning adaptation that uses a linear combination of the agent’s set of states and actions</li>
-<li>* Instead of using a Q matrix, as a we presented last time, because the number of states to keep track of in a game would be infeasible</li>
-<li>* Please see Reinforcement Learning: Q Learning Adaptation handout for high level overview</li>
-<li>We are currently considering using the python library called python to implement the learning algorithm</li>
-<li>* We will contact Gabrielle, who has previous experience using pybrain, to learn more about the library and how to use it</li>
+<li>Plan to implement Q learning adaptation that uses a linear combination of the agent’s set of states and actions
+
+<ul>
+<li>Instead of using a Q matrix, as a we presented last time, because the number of states to keep track of in a game would be infeasible</li>
+<li>Please see Reinforcement Learning: Q Learning Adaptation handout for high level overview</li>
+</ul>
+</li>
+<li>We are currently considering using the python library called python to implement the learning algorithm
+
+<ul>
+<li>We will contact Gabrielle, who has previous experience using pybrain, to learn more about the library and how to use it</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="-key-questions" class="anchor" href="#-key-questions" aria-hidden="true"><span class="octicon octicon-link"></span></a>** Key Questions**:</h2>
+
+<p>Questions for Class
+1. Looking at the measurements listed, which ones do you think will be the most important and when? Also, what other measurements from the pacman environment may be useful to include in our function?
+2. What might some of the measurement functions look like?
+3. Is it best to store the weight vector by pickling? Or is there a better method? (Dependent on Question 1 for Paul)
+4. Ideas for implementing Manhattan distance with walls?</p>
+
+<p>Questions for Paul
+1. When and how do we update the weights vector? How do rewards factor in?</p>
+
+<ul>
+<li>In other words, how does the weight’s vector map to the feature which got the agent to it’s present state?</li>
+<li>Maybe update by keeping track of Q? Or time since agent ate a capsule?
+
+<ol>
+<li>What is the purpose of the constant b and what does it do?</li>
+</ol>
+</li>
+</ul>
+
+<h2>
+<a id="agenda-for-technical-review-session-25-minutes" class="anchor" href="#agenda-for-technical-review-session-25-minutes" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>Agenda for Technical Review Session: (25 minutes)</strong>
+</h2>
+
+<h3>
+<a id="5-minutes-talk-about-how-we-have-implemented-feedback-from-the-design-review-and-our-current-status" class="anchor" href="#5-minutes-talk-about-how-we-have-implemented-feedback-from-the-design-review-and-our-current-status" aria-hidden="true"><span class="octicon octicon-link"></span></a>5 minutes: Talk about how we have implemented feedback from the design review and our current status</h3>
+
+<ul>
+<li>Using Q function instead of Q matrix</li>
+<li>Not including ghosts in our code design (... for now…)
+### 15 Minutes: Q Learning Adaptation</li>
+<li>Going through Reinforcement Learning: Q Learning Adaptation Guide</li>
+<li>Explaining the different parts of the Q function</li>
+<li>Ideate other possible measurements to include in function to determine agent’s optimal action</li>
+<li>Discuss how to update the weight vector
+### 5 Minutes: Show current code</li>
+<li>Basic Q function example</li>
+<li>A-star Search that theoretically works</li>
+<li>Identify next steps</li>
 </ul>
 
 <h1>
@@ -201,7 +262,7 @@ This tutorial was used to develop our first basic q-learning example</p>
 </ul>
 
 <h2>
-<a id="agenda-for-technical-review-session-25-minutes" class="anchor" href="#agenda-for-technical-review-session-25-minutes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Agenda for Technical Review Session: (25 minutes)</h2>
+<a id="agenda-for-technical-review-session-25-minutes-1" class="anchor" href="#agenda-for-technical-review-session-25-minutes-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Agenda for Technical Review Session: (25 minutes)</h2>
 
 <ul>
 <li>5 min introducing the project + existing game architecture</li>
