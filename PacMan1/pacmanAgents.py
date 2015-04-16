@@ -47,15 +47,24 @@ class SimpleQPacman(Agent):
 		# self.features = dict(zip(FEATURE_NAMES, np.zeros(len(FEATURE_NAMES))))
 		self.features = [0, 0]
 		self.weights = [-1, -2]
-		self.b= 0
-		self.explorationRate = 0.1
+		self.b = 0.5
+		self.explorationRate = 0.6
+		self.reward = 0
 
 
 	def getAction(self, state):
-		q = dict(zip(state.getLegalActions(), np.zeros(len(state.getLegalActions()))))
+		"""
+		Takes in a GameState object, calculates the optimal (or not)
+		next action, returns that action.
+		"""
+		self.updateWeights(state)
+		legalActions = state.getLegalActions()
+		legalActions.remove(Directions.STOP)
+		print legalActions
+		q = dict(zip(legalActions, np.zeros(len(legalActions))))
 		action = Directions.STOP
 		for i in range(len(self.features)):
-			for a in state.getLegalActions():
+			for a in legalActions:
 				newstate = state.generateSuccessor(0, a)
 				q[a] += self.extractFeaturesFromState(newstate)[i] * self.weights[i] + self.b
 		print q
@@ -66,9 +75,35 @@ class SimpleQPacman(Agent):
 				action = k
 
 		if self.isExploring():
-			return random.choice(state.getLegalActions())
+			final_action = random.choice(legalActions)
 		else:
-			return action
+			final_action = action
+
+		# state.generatePacmanSuccessor(action).getPacmanPosition() in self.exploredCoords:
+		next_pos = state.generateSuccessor(0, final_action).getPacmanPosition()
+		self.reward = int(state.hasFood(*next_pos))
+		
+		return final_action
+
+	def updateWeights(self, state):
+		"""
+		Change weights of each feature based on the change in that
+		feature from the last state.
+
+		If the last action 
+		"""
+		prevFeatures = np.asarray(self.features)
+		newFeatures = np.asarray(self.extractFeaturesFromState(state))
+		delta_features = newFeatures - prevFeatures
+
+		# mean food distance
+		self.weights[0] -= delta_features[0] * self.reward
+
+		# capsule distance
+		self.weights[1] -= delta_features[1] * self.reward
+
+		# update self.features
+		self.features = self.extractFeaturesFromState(state)
 
 	def extractFeaturesFromState(self, state):
 		pos = state.getPacmanPosition()
@@ -88,7 +123,6 @@ class SimpleQPacman(Agent):
 		else:
 			self.features[1] = 0
 		
-
 		return self.features
 
 		# ghosts = state.getGhostPositions()
