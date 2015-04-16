@@ -12,6 +12,7 @@ import pandas as pd
 from game import Agent, Directions
 from layout import Layout
 from util import manhattanDistance
+from actions import AstarAction, RunawayAction
 
 class GoWestPacman(Agent):
 	"""
@@ -29,6 +30,80 @@ class GoWestPacman(Agent):
 			return Directions.WEST
 		else:
 			return Directions.STOP
+
+
+class SimpleQPacman(Agent):
+	"""
+	Starting over, AGAIN, after meeting with Paul.
+	"""
+
+	
+
+	def __init__(self):
+		super(Agent, self).__init__()
+		# FEATURE_NAMES = ['mean_food_dist', 'nearest_capsule_dist', 'nearest_ghost_dist']
+		FEATURE_NAMES = ['mean_food_dist']
+		# making this a dict will let us refer to features by names
+		# self.features = dict(zip(FEATURE_NAMES, np.zeros(len(FEATURE_NAMES))))
+		self.features = [0, 0]
+		self.weights = [-1, -2]
+		self.b= 0
+		self.explorationRate = 0.1
+
+
+	def getAction(self, state):
+		q = dict(zip(state.getLegalActions(), np.zeros(len(state.getLegalActions()))))
+		action = Directions.STOP
+		for i in range(len(self.features)):
+			for a in state.getLegalActions():
+				newstate = state.generateSuccessor(0, a)
+				q[a] += self.extractFeaturesFromState(newstate)[i] * self.weights[i] + self.b
+		print q
+		q_max = max(q.values())
+		for k, v in q.items():
+			if v == q_max:
+				print k
+				action = k
+
+		if self.isExploring():
+			return random.choice(state.getLegalActions())
+		else:
+			return action
+
+	def extractFeaturesFromState(self, state):
+		pos = state.getPacmanPosition()
+
+		food = state.getFood().asList()
+		if len(food) > 0:
+			mean_food_dist = np.average([manhattanDistance(pos, f) for f in food])
+			self.features[0] = mean_food_dist
+		else:
+			self.features[0] = 0
+		
+
+		capsules = state.getCapsules()
+		if len(capsules) > 0:
+			caps_dists = [manhattanDistance(pos, c) for c in capsules]
+			self.features[1] = min(caps_dists)
+		else:
+			self.features[1] = 0
+		
+
+		return self.features
+
+		# ghosts = state.getGhostPositions()
+		# ghost_dists = [manhattanDistance(pos, g) for g in ghosts]
+		# self.features['nearest_ghost_dist'] = min(ghost_dists)
+
+	def isExploring(self):
+		""" 
+		Stolen from my other agent classes
+		"""
+		r = random.random()
+		if r < self.explorationRate:
+			return True
+		else:
+			return False 
 
 class SimpleExplorationPacman(Agent):
 	"""
@@ -115,85 +190,103 @@ class SimpleExplorationPacman(Agent):
 			return False
 
 
-STATES = {
-'g1_dist': 0,
-'g2_dist': 0,
-'c1_dist': 0, 
-'c2_dist': 0,
-'p_frac': 0
-}
 
-class PyBrainPacman(Agent):
-	"""
-	An agent based on what I just read on PyBrain's Q-learning tutorial thingy.
+# class ActualReinforcementPacman(Agent):
+# 	"""
+# 	An agent based on what I just read on PyBrain's Q-learning tutorial thingy.
 
-	It will need to have a CONTROLLER, to map states to actions;
-	a LEARNER, which updates the controller parameters according to its interactions with the world;
-	and an EXPLORER, which tells it when to do a less-than-optimal action.
-	"""
+# 	It will need to have a CONTROLLER, to map states to actions;
+# 	a LEARNER, which updates the controller parameters according to its interactions with the world;
+# 	and an EXPLORER, which tells it when to choose a less-than-optimal action in the name of adventure.
+# 	"""
 
-	def __init__(self):
-		super(Agent, self).__init__()  # call the parent's init function
-		self.Q = pd.Series(STATES)  # Q initializes with zeros
-		self.pellets_remaining = 0
-		self.g1_dist = 0
-		self.g2_dist = 0
-		self.capsules = 0
-		initialized = False
-		self.explorationRate = 0.2  # exploration parameter
-		# self.exploredCoords = set()  # set of coordinates Pacman has been to
+# 	STATE_VARS = [
+# 	'g1_dist', # manhattan distance from first ghost
+# 	'g2_dist', # manhattan distance from second ghost
+# 	'c1_dist', # manhattan distance from first capsule (do these states get deleted once capsules are gone?)
+# 	'c2_dist', # manhattan distance from second capsule (ditto) -- maybe set to inf and map reward to zero for inf?
+# 	'ex_bool' # represents whether the current cell has been previously explored
+# 	]
 
-	def getAction(self, state):
-		"""
-		I think this is the controller. Takes in a state, returns an action.
-		"""
-		pos = state.getPacmanPosition()
+# 	ACTIONS = [AstarAction, RunawayAction]
+# 	STATES = 
 
-		if not initialized:
-			self.pellets_remaining = state.getNumFood()
-			self.g1_dist = manhattanDistance(pos, state.getGhostPosition(1))
-			self.g2_dist = manhattanDistance(pos, state.getGhostPosition(2))
-			self.capsules = len(state.getCapsules())
+# 	def __init__(self):
+# 		super(Agent, self).__init__()  # call the parent's init function
+# 		self.initialized = False  # we need some information that we don't have upon instantiation
+# 		self.R = np.zeros(len(ACTIONS), len(STATES))
+# 		self.actions = ACTIONS
+# 		self.pellets_remaining = 0
+# 		self.g1_dist = 0
+# 		self.g2_dist = 0
+# 		self.capsules = 0
+# 		self.explorationRate = 0.2  # exploration parameter
+# 		self.exploredCoords = set()  # set of coordinates Pacman has been to
 
-		if isExploring():
-			# do some sort of softmax
-			pass
-		else:
-			# get the best action to do next...
+# 	def computeStates(self, layout):
+# 		"""
+# 		Uses the layout to compute the number of states based on max manhattan distances
+# 		"""
+# 		# (0, 0) and the actual furthest corner are both walls
+# 		furthest_corner = (layout.width - 1, layout.height - 1)
+# 		max_manhattan_distance = ((1, 1), furthest_corner)
+# 		r = range(0, max_manhattan_distance)
+# 		# should also make a function for breaking up the board into arbitrary chunks
 
 
-	def getReward(self, state):
-		"""
-		Function to determine the reward of the action that just happened.
-		"""
-		pos = state.getPacmanPosition()
 
-		delta_food = self.pellets_remaining - state.getNumFood()
-		delta_g1 = self.g1_dist - manhattanDistance(pos, state,getGhostPosition(1))
-		delta_g2 = self.g2_dist - manhattanDistance(pos, state.getGhostPosition(2))
-		delta_capsules = self.capsules - len(state.getCapsules())
+# 	def getAction(self, state):
+# 		"""
+# 		I think this is the controller. Takes in a state, returns an action.
+# 		"""
+# 		pos = state.getPacmanPosition()
 
-		return 2 * delta_food + 3 * delta_g1 + 3 * delta_g2 + 6 * delta_capsules
+# 		if not initialized:
+# 			self.pellets_remaining = state.getNumFood()
+# 			self.g1_dist = manhattanDistance(pos, state.getGhostPosition(1))
+# 			self.g2_dist = manhattanDistance(pos, state.getGhostPosition(2))
+# 			self.capsules = len(state.getCapsules())
+# 			self.initialized = True
+# 			return Directions.STOP
+
+# 		if isExploring():
+# 			# do some sort of softmax
+# 			pass
+# 		else:
+# 			# get the best action to do next...
+# 			self.getOptimalAction()
+
+# 	def getReward(self, state):
+# 		"""
+
+# 		"""
+# 		pass
+# 	# def getReward(self, state):
+# 	# 	"""
+# 	# 	Function to determine the reward of the action that just happened.
+# 	# 	"""
+# 	# 	pos = state.getPacmanPosition()
+
+# 	# 	delta_food = self.pellets_remaining - state.getNumFood()
+# 	# 	delta_g1 = self.g1_dist - manhattanDistance(pos, state,getGhostPosition(1))
+# 	# 	delta_g2 = self.g2_dist - manhattanDistance(pos, state.getGhostPosition(2))
+# 	# 	delta_capsules = self.capsules - len(state.getCapsules())
+
+# 	# 	return 2 * delta_food + 3 * delta_g1 + 3 * delta_g2 + 6 * delta_capsules
+
+# 	def getOptimalAction(self):
+# 		"""
+# 		Look at Q and figure out what to do next
+# 		"""
+# 		# run generatesuccessor (a heavily modified version that returns a state?)
+# 		# for the state it generates, get the max q value among the actions
+# 		# (I assume all actions are going to be legal, so that's nice)
+# 		pass
+
+# 	def updateQ(self, action, reward):
+# 		"""
+# 		Q(s,a) = Q(s,a) + alpha * [r + gamma * max(Q(s', a')) - Q(s, a)]
+# 		"""
+# 		pass 
 
 
-	def updateQ(self, action, reward):
-		"""
-		Q(s) = Q(s) + alpha * [r + gamma * max(Q(s')) - Q(s, a)]
-		"""
-
-	def qFunction(self):
-		"""
-		The thing that is q
-		"""
-		return self.Q.g1_dist
-
-	def isExploring(self):
-		"""
-		Same as goRandomDirection from other PacMan
-		"""
-
-		r = random.random()
-		if r < self.explorationRate:
-			return True
-		else:
-			return False
