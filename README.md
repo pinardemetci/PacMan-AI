@@ -75,7 +75,7 @@ The framework laid out in Berkeley’s CS188 class (http://ai.berkeley.edu/proje
 #Code Review I: Preparation and Framing
 ##**Background and Context**: 
 * Project goal: Develop our own artificial intelligence algorithm for the pacman agent to learn how to play based on the agent’s experience in earning rewards by acting on different states
-* * Continuing to use the UC Berkeley code as the foundation of our AI algorithm
+  *  Continuing to use the UC Berkeley code as the foundation of our AI algorithm
 * We have abstracted the game by focusing on agent collecting food and not including ghosts (... for now…)
 * Plan to implement Q learning adaptation that uses a linear combination of the agent’s set of states and actions
 * * Instead of using a Q matrix, as a we presented last time, because the number of states to keep track of in a game would be infeasible
