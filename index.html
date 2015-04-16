@@ -152,7 +152,22 @@ The project aims to use AI and machine learning strategies for pathfinding in Pa
 
 <ul>
 <li>Covering more AI and machine learning related concepts -additional to the toolboxes- would be useful. </li>
-<li>Coding/data processing efficiency </li>
+<li>Coding/data processing efficiency #Code Review I: Preparation and Framing</li>
+</ul>
+
+<h2>
+<a id="background-and-context" class="anchor" href="#background-and-context" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+<strong>Background and Context</strong>:</h2>
+
+<ul>
+<li>Project goal: Develop our own artificial intelligence algorithm for the pacman agent to learn how to play based on the agent’s experience in earning rewards by acting on different states</li>
+<li>* Continuing to use the UC Berkeley code as the foundation of our AI algorithm</li>
+<li>We have abstracted the game by focusing on agent collecting food and not including ghosts (... for now…)</li>
+<li>Plan to implement Q learning adaptation that uses a linear combination of the agent’s set of states and actions</li>
+<li>* Instead of using a Q matrix, as a we presented last time, because the number of states to keep track of in a game would be infeasible</li>
+<li>* Please see Reinforcement Learning: Q Learning Adaptation handout for high level overview</li>
+<li>We are currently considering using the python library called python to implement the learning algorithm</li>
+<li>* We will contact Gabrielle, who has previous experience using pybrain, to learn more about the library and how to use it</li>
 </ul>
 
 <h1>
@@ -167,7 +182,7 @@ The project aims to use AI and machine learning strategies for pathfinding in Pa
 </ul>
 
 <h2>
-<a id="background-and-context" class="anchor" href="#background-and-context" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background and Context:</h2>
+<a id="background-and-context-1" class="anchor" href="#background-and-context-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background and Context:</h2>
 
 <p>Project structure uses existing code from a computer science class at UC Berkeley. We are developing our own artificial intelligence algorithm to learn how to play pacman. The code we write will control the agent in the game to ultimately win as it learns from it’s experience. 
 Please look the introduction and Q-learning questions on: <a href="http://ai.berkeley.edu/reinforcement.html">http://ai.berkeley.edu/reinforcement.html</a> 
