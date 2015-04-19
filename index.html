@@ -42,6 +42,7 @@ The project aims to use AI and machine learning strategies for pathfinding in Pa
 <ul>
 <li>Project Proposal</li>
 <li>Technical Review Preparation</li>
+<li>Technical Review Reflection</li>
 <li>Design Review Preparation</li>
 <li>Design Review Reflection</li>
 </ul>
@@ -232,6 +233,99 @@ The project aims to use AI and machine learning strategies for pathfinding in Pa
 </ul>
 
 <h1>
+<a id="review-process-reflection" class="anchor" href="#review-process-reflection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Review Process Reflection</h1>
+
+<h3>
+<a id="how-did-the-review-go" class="anchor" href="#how-did-the-review-go" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>How did the Review go?</strong>
+</h3>
+
+<p>After the design review last week, we decided to implement Q-learning with function approximation instead of having a Q matrix to improve computational efficiency. At the technical review, we showed our implementation with two features that help us with computing the Q-value for state-action pairs: a feature for getting the PacMan to capsules and another function for moving to general areas with a high food density. The set exploration rate determined the probability of whether pacman would move randomly or execute an action based on the current weights of each feature. We updated the weights for the features in thefunction based on pacman’s reward. Key questions we had from our implementation were how to update the  weights for each function, in addition to which features to implement and how to prioritize them. In our Preparation and Framing document, we broke these questions up into questions for everyone, which were at an appropriate level for our peers, and questions specifically for Paul, who has expertise in reinforcement learning. 
+We provided our audience context with a Reinforcement Learning: Q-Learning Adaptation Guide to abstract the mathematical concepts involved with our project for their understanding. By reviewing our current specific implementation of Q-learning in our program, our audience provided useful insights from the technical review that answered our questions and helped us determine our next steps.</p>
+
+<h3>
+<a id="did-we-get-answers-to-our-key-questions" class="anchor" href="#did-we-get-answers-to-our-key-questions" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>Did we get answers to our key questions?</strong>
+</h3>
+
+<p><strong>Question 1 (for all)</strong></p>
+
+<p>Looking at the measurements listed, which ones do you think will be the most important and when? Also, what other measurements from the pacman environment may be useful to include in our function?</p>
+
+<ul>
+<li>Our list of possible environmental measures to include in the function was validated by our peers because they did not have any additions. However, they thought that we should prioritize the measurements as: pacman’s distance from the nearest capsule, the amount of time since pacman ate food and the food/unexplored areas closest to pacman. Focusing on the food location may be advantageous because pacman will learn where the capsules with experience and we will not need to code pacman’s long term behavior of going to a specific location. We hope to optimally tweak the weights of each feature. </li>
+</ul>
+
+<p><strong>Question 2 (for all)</strong>
+What might some of the measurement functions look like?</p>
+
+<ul>
+<li>We discussed our current  function implementation of calculating the distance between pacman and a capsule and trying to implement it. If we continue to include the capsule location as a feature of the  function, we hope to adjust this to accommodate for walls by using astar search to calculate the distance and plot a path. As far as keeping track of food locations, part of the learning algorithm will “remember” explored and unexplored squares. In determining pacman’s focus, counting the amount of time since pacman last ate food may be helpful in prioritizing the weights of each variable in the  function, especially because we want to optimize pacman’s score and pacman’s score decreases with every second it does not eat food.</li>
+</ul>
+
+<p><strong>Question 3 (for all)</strong>
+Is it best to store the weight vector by pickling? Or is there a better method? (Dependent on Question 1 for Paul)</p>
+
+<ul>
+<li>The answer to this question really depends on whether pacman is learning over one game (our MVP - offline learning), which case the weight vector does not need to be stored, or multiple games (online learning), where the weight vector would be stored by pickling. 
+<strong>Question 4 (for all)</strong>
+Ideas for implementing Manhattan distance with walls?</li>
+<li>Use Astar; alternatively, have it go in one direction eating food until it hits a wall, and only then make another decision. The latter would help prevent the difficulties our latest implementation was hitting, where it would go back and forth in the general vicinity of the nearest capsule.</li>
+</ul>
+
+<p>** Question 1 (for Paul)**
+    When and how do we  update the weights vector? How do rewards factor in? In other words, how does the weight’s vector map to the feature which got the agent to it’s present state? Maybe update by keeping track of Q? Or time since agent ate a capsule?</p>
+
+<ul>
+<li>How to update the weight vector is apparently a hot area of research, but we will find papers describing an implementation or just use a library to update them for us, as well as communicate our findings to Paul. 
+** Question 2 (for Paul) **
+What is the purpose  of the constant b and what does it do?</li>
+<li>The b constant is the y intercept for a fit function. The y axis of that fit function would be the for a specific feature, and the x axis would be the value of the weight w for that feature. </li>
+</ul>
+
+<h3>
+<a id="did-we-stick-closely-to-our-planned-agenda-or-did-we-consider-new-things-during-the-discussion-that-made-you-change-your-plans" class="anchor" href="#did-we-stick-closely-to-our-planned-agenda-or-did-we-consider-new-things-during-the-discussion-that-made-you-change-your-plans" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>Did we stick closely to our planned agenda, or did we consider new things during the discussion that made you change your plans?</strong>
+</h3>
+
+<pre><code>We stuck fairly close to our planned agenda. We showed code as we discussed our current  
+</code></pre>
+
+<p>function implementation (before the last five minutes), because we wanted to provide our peers and educators with a visualization of our current difficulties. To further explain why pacman seemed confused in constantly changing direction, we showed our audience how we were updating the weight vector and finding rewards, which gave them a better understanding of where they could make suggestions to help us. </p>
+
+<h3>
+<a id="what-could-you-do-next-time-to-have-an-even-more-effective-technical-review" class="anchor" href="#what-could-you-do-next-time-to-have-an-even-more-effective-technical-review" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>What could you do next time to have an even more effective technical review?</strong>
+</h3>
+
+<pre><code>We could have done more research in implementing the weight vector and understanding more of the mathematics behind our Q-learning implementation. 
+</code></pre>
+
+<h2>
+<a id="feedback-and-decisions" class="anchor" href="#feedback-and-decisions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feedback and Decisions:</h2>
+
+<h3>
+<a id="how-do-you-plan-to-incorporate-feedback-going-forward" class="anchor" href="#how-do-you-plan-to-incorporate-feedback-going-forward" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>How do you plan to incorporate feedback going forward?</strong>
+</h3>
+
+<pre><code>Paul has sent us an article titled “Reinforcement Learning in Continuous State and Action Spaces” which talks about various algorithms and methods for finding optimal decision policies and updating parameters in reinforcement learning in continuous domains. We will find more articles based on the questions that come up during this process. After reading the articles and discussing how we could implement our project based on that, we are planning to have another meeting with Paul within a week.
+</code></pre>
+
+<p>One suggestion we got was to implement Q-learning in a simple layout, where we know the optimal path and comparing the Q-values and policies generated by our code to the ones we calculate ourselves. This could help us enhance our understanding about how functions compute Q-values and which function leads to what result. This should give us clearer view on how to move forward with function approximation techniques when we move on to more complex layouts.</p>
+
+<pre><code>The discussion with the audience in the class was useful to understand the key strategies for winning PacMan. For our implementation without the ghosts, we will stick with the audience’s suggestions on prioritizing the capsules, and then the time. They further suggested that we could use A* search for reaching the capsules and food. In our implementation with functions and weight updates, we will take these suggestions into account. In our final steps, we will work on testing and modifying our parameters to optimize the algorithm. 
+</code></pre>
+
+<h3>
+<a id="what-new-questions-did-we-generate" class="anchor" href="#what-new-questions-did-we-generate" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>What new questions did we generate?</strong>
+</h3>
+
+<ul>
+<li>How do we do the step-by-step calculations for a really simple board? (We tried this after the review and got stuck.)</li>
+<li>Should we use a library to update the weights or should we write our own implementation based on papers we read?</li>
+<li>Do we need to use a library/find a paper describing how to assign rewards as well? </li>
+<li>What is the best architecture for us? We could do something like PyBrain, where there are Agents, Learners, Tasks, and Environments, but aren’t sure if this is too much overhead for our less-general application.</li>
+<li>Are we going to use a discrete action space or a continuous one?</li>
+<li>What is the best way to test and modify parameters?</li>
+</ul>
+
+<h1>
 <a id="design-review-i-preparation-and-framing" class="anchor" href="#design-review-i-preparation-and-framing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Design Review I: Preparation and Framing</h1>
 
 <h2>
@@ -285,15 +379,15 @@ This tutorial was used to develop our first basic q-learning example</p>
 <a id="reflection-and-synthesis" class="anchor" href="#reflection-and-synthesis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Reflection and Synthesis</h3>
 
 <h1>
-<a id="review-process-reflection" class="anchor" href="#review-process-reflection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Review Process Reflection</h1>
+<a id="review-process-reflection-1" class="anchor" href="#review-process-reflection-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Review Process Reflection</h1>
 
 <h2>
-<a id="how-did-the-review-go" class="anchor" href="#how-did-the-review-go" aria-hidden="true"><span class="octicon octicon-link"></span></a>How did the Review go?</h2>
+<a id="how-did-the-review-go-1" class="anchor" href="#how-did-the-review-go-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>How did the Review go?</h2>
 
 <p>Our design review was very helpful because we addressed our key questions that helped us re-oriented our project direction in the future to use more feasible solutions in learning and keeping track of pacman’s states and actions. Considering how much we learned from the design review, we used our time effectively and efficiently. In the design review, we showed how we have implemented Q-learning into our code and how we are working with the Berkeley code structure. Showing the audience demonstrations of our current process helped them better understand our current challenges and provide constructive, helpful feedback. Overall, the design review quite successful because the feedback helped us think critically about our process and progress and helped reorient us in a more feasible direction in terms of storing pacman states and actions and developing the AI algorithm.</p>
 
 <h2>
-<a id="did-we-get-answers-to-our-key-questions" class="anchor" href="#did-we-get-answers-to-our-key-questions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Did we get answers to our key questions?</h2>
+<a id="did-we-get-answers-to-our-key-questions-1" class="anchor" href="#did-we-get-answers-to-our-key-questions-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Did we get answers to our key questions?</h2>
 
 <ul>
 <li><p>Question 1
@@ -317,27 +411,27 @@ Our audience suggested that we have a Q function instead of a Q matrix because, 
 <p>We hope to implement and test our all of these suggestions because they have helped us recognize the constraints of our current direction. We will become more familiar with the different resources and test them as we continue our progress. </p>
 
 <h3>
-<a id="did-we-stick-closely-to-our-planned-agenda-or-did-we-consider-new-things-during-the-discussion-that-made-you-change-your-plans" class="anchor" href="#did-we-stick-closely-to-our-planned-agenda-or-did-we-consider-new-things-during-the-discussion-that-made-you-change-your-plans" aria-hidden="true"><span class="octicon octicon-link"></span></a>Did we stick closely to our planned agenda, or did we consider new things during the discussion that made you change your plans?</h3>
+<a id="did-we-stick-closely-to-our-planned-agenda-or-did-we-consider-new-things-during-the-discussion-that-made-you-change-your-plans-1" class="anchor" href="#did-we-stick-closely-to-our-planned-agenda-or-did-we-consider-new-things-during-the-discussion-that-made-you-change-your-plans-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Did we stick closely to our planned agenda, or did we consider new things during the discussion that made you change your plans?</h3>
 
 <p>For the most part, we stuck closely to the planned agenda. We spent about two minutes introducing the project. Then we launched into explaining Q-learning in order to explain our problem of encoding pacman’s states and actions more efficiently. We received extensive feedback about using a Q-function and implementing block strategies that was very helpful. While we spent a significant amount of time (~15 minutes), going over Q-learning, introducing our challenge, and receiving feedback, the time was well spent because it helped us reevaluate our current direction and modify it quite extensively but using functions instead of matrices. 
 We introduced the current game architecture with a UML diagram and how we interact with it. Then, we showed demonstrations of the simple algorithms we had developed, a Q-learning example and a simple-exploration (based specifically on explored and unexplored cells). We asked to what extent we should modify the Berkeley code structure and determines that our next steps were to focus on pacman’s AI algorithm. </p>
 
 <h3>
-<a id="what-could-you-do-next-time-to-have-an-even-more-effective-technical-review" class="anchor" href="#what-could-you-do-next-time-to-have-an-even-more-effective-technical-review" aria-hidden="true"><span class="octicon octicon-link"></span></a>What could you do next time to have an even more effective technical review?</h3>
+<a id="what-could-you-do-next-time-to-have-an-even-more-effective-technical-review-1" class="anchor" href="#what-could-you-do-next-time-to-have-an-even-more-effective-technical-review-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>What could you do next time to have an even more effective technical review?</h3>
 
 <p>Distributed “sparknote” sheets of the concepts, such as Q-learning, that we want to talk about. We recognize that Q-learning is a difficult concept to understand just through reading a website. This would allow our audience to have a document to refer to as we discuss how we have incorporated the concepts into our code and, if desired, take notes. 
 Do more back of the envelope calculations of project functions before hand to get a better sense of the limitations of our current project direction.</p>
 
 <h2>
-<a id="feedback-and-decisions" class="anchor" href="#feedback-and-decisions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feedback and Decisions:</h2>
+<a id="feedback-and-decisions-1" class="anchor" href="#feedback-and-decisions-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feedback and Decisions:</h2>
 
 <h3>
-<a id="how-do-you-plan-to-incorporate-feedback-going-forward" class="anchor" href="#how-do-you-plan-to-incorporate-feedback-going-forward" aria-hidden="true"><span class="octicon octicon-link"></span></a>How do you plan to incorporate feedback going forward?</h3>
+<a id="how-do-you-plan-to-incorporate-feedback-going-forward-1" class="anchor" href="#how-do-you-plan-to-incorporate-feedback-going-forward-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>How do you plan to incorporate feedback going forward?</h3>
 
 <p>Going forward, we will develop the Q function and vector input. Additionally, we will test storing pacman’s learned states with various methods (including pickling). In our learning function, we will use some of the suggested resources to help our code be more efficient. Instead of focusing on pacman’s single actions, we will construct and test the high-level block strategies. Then, integrate them into various states. With learning, pacman will begin to choose the optimal block strategies based on it’s current state. Through this process, we may refer more to the Berkeley code as we encounter significant challenges to obtain an overview of our other students address the same problem.</p>
 
 <h3>
-<a id="what-new-questions-did-we-generate" class="anchor" href="#what-new-questions-did-we-generate" aria-hidden="true"><span class="octicon octicon-link"></span></a>What new questions did we generate?</h3>
+<a id="what-new-questions-did-we-generate-1" class="anchor" href="#what-new-questions-did-we-generate-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>What new questions did we generate?</h3>
 
 <ul>
 <li>How to use pybrain and incorporate into our code structure? (Currently working on this)</li>
