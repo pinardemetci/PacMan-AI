@@ -123,31 +123,24 @@ We provided our audience context with a Reinforcement Learning: Q-Learning Adapt
 
 ### Did we get answers to our key questions?
 ### Questions for all
-**Question 1**
-
-Looking at the measurements listed, which ones do you think will be the most important and when? Also, what other measurements from the pacman environment may be useful to include in our function?
+**Question 1:**Looking at the measurements listed, which ones do you think will be the most important and when? Also, what other measurements from the pacman environment may be useful to include in our function?
 * Our list of possible environmental measures to include in the function was validated by our peers because they did not have any additions. However, they thought that we should prioritize the measurements as: pacman’s distance from the nearest capsule, the amount of time since pacman ate food and the food/unexplored areas closest to pacman. Focusing on the food location may be advantageous because pacman will learn where the capsules with experience and we will not need to code pacman’s long term behavior of going to a specific location. We hope to optimally tweak the weights of each feature. 
 
-**Question 2**
-What might some of the measurement functions look like?
+**Question 2:**What might some of the measurement functions look like?
 * We discussed our current  function implementation of calculating the distance between pacman and a capsule and trying to implement it. If we continue to include the capsule location as a feature of the  function, we hope to adjust this to accommodate for walls by using astar search to calculate the distance and plot a path. As far as keeping track of food locations, part of the learning algorithm will “remember” explored and unexplored squares. In determining pacman’s focus, counting the amount of time since pacman last ate food may be helpful in prioritizing the weights of each variable in the  function, especially because we want to optimize pacman’s score and pacman’s score decreases with every second it does not eat food.
 
-**Question 3**
-Is it best to store the weight vector by pickling? Or is there a better method? (Dependent on Question 1 for Paul)
+**Question 3:**Is it best to store the weight vector by pickling? Or is there a better method? (Dependent on Question 1 for Paul)
 * The answer to this question really depends on whether pacman is learning over one game (our MVP - offline learning), which case the weight vector does not need to be stored, or multiple games (online learning), where the weight vector would be stored by pickling. 
 
-**Question 4**
-Ideas for implementing Manhattan distance with walls?
+**Question 4:**Ideas for implementing Manhattan distance with walls?
 * Use Astar; alternatively, have it go in one direction eating food until it hits a wall, and only then make another decision. The latter would help prevent the difficulties our latest implementation was hitting, where it would go back and forth in the general vicinity of the nearest capsule.
 
 ###Questions for Paul
 
-**Question 1**
-	When and how do we  update the weights vector? How do rewards factor in? In other words, how does the weight’s vector map to the feature which got the agent to it’s present state? Maybe update by keeping track of Q? Or time since agent ate a capsule?
+**Question 1:**When and how do we  update the weights vector? How do rewards factor in? In other words, how does the weight’s vector map to the feature which got the agent to it’s present state? Maybe update by keeping track of Q? Or time since agent ate a capsule?
 * How to update the weight vector is apparently a hot area of research, but we will find papers describing an implementation or just use a library to update them for us, as well as communicate our findings to Paul.
  
-**Question 2**
-	What is the purpose  of the constant b and what does it do?
+**Question 2:**What is the purpose  of the constant b and what does it do?
 * The b constant is the y intercept for a fit function. The y axis of that fit function would be the for a specific feature, and the x axis would be the value of the weight w for that feature. 
 
 
