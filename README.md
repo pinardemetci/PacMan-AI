@@ -87,7 +87,7 @@ The framework laid out in Berkeley’s CS188 class (http://ai.berkeley.edu/proje
 * We are currently considering using the python library called python to implement the learning algorithm
   * We will contact Gabrielle, who has previous experience using pybrain, to learn more about the library and how to use it
 
-## ** Key Questions**: 
+## Key Questions: 
 Questions for Class
 1. Looking at the measurements listed, which ones do you think will be the most important and when? Also, what other measurements from the pacman environment may be useful to include in our function?
 2. What might some of the measurement functions look like?
@@ -100,7 +100,7 @@ Questions for Paul
   * Maybe update by keeping track of Q? Or time since agent ate a capsule?
 2. What is the purpose of the constant b and what does it do?
 
-## **Agenda for Technical Review Session: (25 minutes)**
+## Agenda for Technical Review Session: (25 minutes)
 ### 5 minutes: Talk about how we have implemented feedback from the design review and our current status
 * Using Q function instead of Q matrix
 * Not including ghosts in our code design (... for now…)
@@ -139,10 +139,13 @@ Is it best to store the weight vector by pickling? Or is there a better method? 
 **Question 4**
 Ideas for implementing Manhattan distance with walls?
 * Use Astar; alternatively, have it go in one direction eating food until it hits a wall, and only then make another decision. The latter would help prevent the difficulties our latest implementation was hitting, where it would go back and forth in the general vicinity of the nearest capsule.
+
 ###Questions for Paul
+
 **Question 1**
 	When and how do we  update the weights vector? How do rewards factor in? In other words, how does the weight’s vector map to the feature which got the agent to it’s present state? Maybe update by keeping track of Q? Or time since agent ate a capsule?
-* How to update the weight vector is apparently a hot area of research, but we will find papers describing an implementation or just use a library to update them for us, as well as communicate our findings to Paul. 
+* How to update the weight vector is apparently a hot area of research, but we will find papers describing an implementation or just use a library to update them for us, as well as communicate our findings to Paul.
+ 
 **Question 2**
 	What is the purpose  of the constant b and what does it do?
 * The b constant is the y intercept for a fit function. The y axis of that fit function would be the for a specific feature, and the x axis would be the value of the weight w for that feature. 
