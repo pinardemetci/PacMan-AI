@@ -190,7 +190,7 @@ The project aims to use AI and machine learning strategies for pathfinding in Pa
 </ul>
 
 <h2>
-<a id="-key-questions" class="anchor" href="#-key-questions" aria-hidden="true"><span class="octicon octicon-link"></span></a>** Key Questions**:</h2>
+<a id="key-questions" class="anchor" href="#key-questions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Key Questions:</h2>
 
 <p>Questions for Class
 1. Looking at the measurements listed, which ones do you think will be the most important and when? Also, what other measurements from the pacman environment may be useful to include in our function?
@@ -212,8 +212,7 @@ The project aims to use AI and machine learning strategies for pathfinding in Pa
 </ul>
 
 <h2>
-<a id="agenda-for-technical-review-session-25-minutes" class="anchor" href="#agenda-for-technical-review-session-25-minutes" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>Agenda for Technical Review Session: (25 minutes)</strong>
-</h2>
+<a id="agenda-for-technical-review-session-25-minutes" class="anchor" href="#agenda-for-technical-review-session-25-minutes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Agenda for Technical Review Session: (25 minutes)</h2>
 
 <h3>
 <a id="5-minutes-talk-about-how-we-have-implemented-feedback-from-the-design-review-and-our-current-status" class="anchor" href="#5-minutes-talk-about-how-we-have-implemented-feedback-from-the-design-review-and-our-current-status" aria-hidden="true"><span class="octicon octicon-link"></span></a>5 minutes: Talk about how we have implemented feedback from the design review and our current status</h3>
@@ -273,13 +272,23 @@ Is it best to store the weight vector by pickling? Or is there a better method? 
 Ideas for implementing Manhattan distance with walls?</p>
 
 <ul>
-<li>Use Astar; alternatively, have it go in one direction eating food until it hits a wall, and only then make another decision. The latter would help prevent the difficulties our latest implementation was hitting, where it would go back and forth in the general vicinity of the nearest capsule.
-###Questions for Paul
-<strong>Question 1</strong>
-When and how do we  update the weights vector? How do rewards factor in? In other words, how does the weight’s vector map to the feature which got the agent to it’s present state? Maybe update by keeping track of Q? Or time since agent ate a capsule?</li>
-<li>How to update the weight vector is apparently a hot area of research, but we will find papers describing an implementation or just use a library to update them for us, as well as communicate our findings to Paul. 
-<strong>Question 2</strong>
-What is the purpose  of the constant b and what does it do?</li>
+<li>Use Astar; alternatively, have it go in one direction eating food until it hits a wall, and only then make another decision. The latter would help prevent the difficulties our latest implementation was hitting, where it would go back and forth in the general vicinity of the nearest capsule.</li>
+</ul>
+
+<h3>
+<a id="questions-for-paul" class="anchor" href="#questions-for-paul" aria-hidden="true"><span class="octicon octicon-link"></span></a>Questions for Paul</h3>
+
+<p><strong>Question 1</strong>
+    When and how do we  update the weights vector? How do rewards factor in? In other words, how does the weight’s vector map to the feature which got the agent to it’s present state? Maybe update by keeping track of Q? Or time since agent ate a capsule?</p>
+
+<ul>
+<li>How to update the weight vector is apparently a hot area of research, but we will find papers describing an implementation or just use a library to update them for us, as well as communicate our findings to Paul.</li>
+</ul>
+
+<p><strong>Question 2</strong>
+    What is the purpose  of the constant b and what does it do?</p>
+
+<ul>
 <li>The b constant is the y intercept for a fit function. The y axis of that fit function would be the for a specific feature, and the x axis would be the value of the weight w for that feature. </li>
 </ul>
 
@@ -343,7 +352,7 @@ Q-learning tutorial: ttp://mnemstudio.org/path-finding-q-learning-tutorial.htm
 This tutorial was used to develop our first basic q-learning example</p>
 
 <h2>
-<a id="key-questions" class="anchor" href="#key-questions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Key Questions:</h2>
+<a id="key-questions-1" class="anchor" href="#key-questions-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Key Questions:</h2>
 
 <ul>
 <li>Best way to encode states? Especially with regard to ghosts</li>
