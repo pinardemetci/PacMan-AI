@@ -29,7 +29,7 @@ import sys
 # Parts worth reading #
 #######################
 
-class Agent(object):
+class Agent:
     """
     An agent must define a getAction method, but may also define the
     following methods which will be called if they exist:
@@ -86,9 +86,9 @@ class Configuration:
     def getDirection(self):
         return self.direction
 
-    # def isInteger(self):
-    #     x,y = self.pos
-    #     return x == int(x) and y == int(y)
+    def isInteger(self):
+        x,y = self.pos
+        return x == int(x) and y == int(y)
 
     def __eq__(self, other):
         if other == None: return False
@@ -117,20 +117,6 @@ class Configuration:
             direction = self.direction # There is no stop direction
         return Configuration((x + dx, y+dy), direction)
 
-
-    def vectorToDirection(vector):
-        dx, dy = vector
-        if dy > 0:
-            return Directions.NORTH
-        if dy < 0:
-            return Directions.SOUTH
-        if dx < 0:
-            return Directions.WEST
-        if dx > 0:
-            return Directions.EAST
-        return Directions.STOP
-    vectorToDirection = staticmethod(vectorToDirection)
-
 class AgentState:
     """
     AgentStates hold the state of an agent (configuration, speed, scared, etc).
@@ -140,7 +126,7 @@ class AgentState:
         self.start = startConfiguration
         self.configuration = startConfiguration
         self.isPacman = isPacman
-        self.scaredTimer = 0 
+        self.scaredTimer = 0
         self.numCarrying = 0
         self.numReturned = 0
 
@@ -161,9 +147,9 @@ class AgentState:
     def copy( self ):
         state = AgentState( self.start, self.isPacman )
         state.configuration = self.configuration
-        state.scaredTimer = self.scaredTimer #print out sometime
-        state.numCarrying = self.numCarrying #This is zero everywhere and may be deleted
-        state.numReturned = self.numReturned # "   "
+        state.scaredTimer = self.scaredTimer
+        state.numCarrying = self.numCarrying
+        state.numReturned = self.numReturned
         return state
 
     def getPosition(self):
@@ -173,7 +159,7 @@ class AgentState:
     def getDirection(self):
         return self.configuration.getDirection()
 
-class Grid(object):
+class Grid:
     """
     A 2-dimensional array of objects backed by a list of lists.  Data is accessed
     via grid[x][y] where (x,y) are positions on a Pacman map with x horizontal,
@@ -183,8 +169,7 @@ class Grid(object):
     """
     def __init__(self, width, height, initialValue=False, bitRepresentation=None):
         if initialValue not in [False, True]: raise Exception('Grids can only contain booleans')
-        self.CELLS_PER_INT = 30 #Why are you 30?
-
+        self.CELLS_PER_INT = 30
 
         self.width = width
         self.height = height
