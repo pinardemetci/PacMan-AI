@@ -12,7 +12,7 @@ import pandas as pd
 from game import Agent, Directions
 from layout import Layout
 from util import manhattanDistance
-from actions import AstarAction, RunawayAction
+from features import NearestCapsuleFeature, NearestGhostFeature
 
 class GoWestPacman(Agent):
 	"""
@@ -34,22 +34,18 @@ class GoWestPacman(Agent):
 
 class SimpleQPacman(Agent):
 	"""
-	Starting over, AGAIN, after meeting with Paul.
+	Starting over, AGAIN
 	"""
-
-	
 
 	def __init__(self):
 		super(Agent, self).__init__()
 		# FEATURE_NAMES = ['mean_food_dist', 'nearest_capsule_dist', 'nearest_ghost_dist']
-		FEATURE_NAMES = ['mean_food_dist']
 		# making this a dict will let us refer to features by names
 		# self.features = dict(zip(FEATURE_NAMES, np.zeros(len(FEATURE_NAMES))))
-		self.features = [0, 0]
-		self.weights = [-1, -2]
+		self.features = [NearestCapsuleFeature(0), NearestGhostFeature(1)] # could be done better
+		self.weights = np.zeros([1, len(self.features)])
 		self.b = 0.5
 		self.explorationRate = 0.6
-		self.reward = 0
 
 
 	def getAction(self, state):
@@ -59,29 +55,33 @@ class SimpleQPacman(Agent):
 		"""
 		self.updateWeights(state)
 		legalActions = state.getLegalActions()
+		# can't stop won't stop
 		legalActions.remove(Directions.STOP)
-		print legalActions
+		# 
 		q = dict(zip(legalActions, np.zeros(len(legalActions))))
-		action = Directions.STOP
-		for i in range(len(self.features)):
+
+		action = None
+
+		for i in range(len(self.feature_values)):
 			for a in legalActions:
 				newstate = state.generateSuccessor(0, a)
 				q[a] += self.extractFeaturesFromState(newstate)[i] * self.weights[i] + self.b
+
 		print q
+
 		q_max = max(q.values())
 		for k, v in q.items():
 			if v == q_max:
 				print k
 				action = k
 
+		# to explore or not 
 		if self.isExploring():
 			final_action = random.choice(legalActions)
 		else:
 			final_action = action
 
-		# state.generatePacmanSuccessor(action).getPacmanPosition() in self.exploredCoords:
 		next_pos = state.generateSuccessor(0, final_action).getPacmanPosition()
-		self.reward = int(state.hasFood(*next_pos))
 		
 		return final_action
 
@@ -89,49 +89,60 @@ class SimpleQPacman(Agent):
 		"""
 		Change weights of each feature based on the change in that
 		feature from the last state.
-
-		If the last action 
 		"""
-		prevFeatures = np.asarray(self.features)
+		prevFeatures = np.asarray(self.feature_values)
 		newFeatures = np.asarray(self.extractFeaturesFromState(state))
 		delta_features = newFeatures - prevFeatures
 
+		# TODO: these next two lines can be combined
 		# mean food distance
-		self.weights[0] -= delta_features[0] * self.reward
+		self.weights[0] += delta_features[0] * self.getExpectedNextReward()
 
 		# capsule distance
-		self.weights[1] -= delta_features[1] * self.reward
+		self.weights[1] += delta_features[1] * self.getExpectedNextReward()
 
-		# update self.features
-		self.features = self.extractFeaturesFromState(state)
+		# update self.feature_values
+		self.feature_values = self.extractFeaturesFromState(state)
 
 	def extractFeaturesFromState(self, state):
+		"""
+		phi(s) -- map the state onto features.
+		Updates and returns self.feature_values based on current state.
+		"""
 		pos = state.getPacmanPosition()
 
 		food = state.getFood().asList()
 		if len(food) > 0:
 			mean_food_dist = np.average([manhattanDistance(pos, f) for f in food])
-			self.features[0] = mean_food_dist
+			self.feature_values[0] = mean_food_dist
 		else:
-			self.features[0] = 0
+			self.feature_values[0] = 0
 		
 
 		capsules = state.getCapsules()
 		if len(capsules) > 0:
 			caps_dists = [manhattanDistance(pos, c) for c in capsules]
-			self.features[1] = min(caps_dists)
+			self.feature_values[1] = min(caps_dists)
 		else:
-			self.features[1] = 0
+			self.feature_values[1] = 0
 		
-		return self.features
+		return self.feature_values
 
 		# ghosts = state.getGhostPositions()
 		# ghost_dists = [manhattanDistance(pos, g) for g in ghosts]
-		# self.features['nearest_ghost_dist'] = min(ghost_dists)
+		# self.feature_values['nearest_ghost_dist'] = min(ghost_dists)
+
+	def getExpectedNextReward(self, state, action, sucessor):
+		"""
+		r_t+1 = R(s_t, a_t, s_t+1)
+		Reward currently equal to the change in score between this state and the next.
+		Not currently using action for anything, but the paper has it in there.
+		"""
+		return successor.getScore() - state.getScore()
 
 	def isExploring(self):
 		""" 
-		Stolen from my other agent classes
+		Uses explorationRate to decide if we explore or not.
 		"""
 		r = random.random()
 		if r < self.explorationRate:
@@ -208,7 +219,6 @@ class SimpleExplorationPacman(Agent):
 		"""
 		self.Q[newState] = self.R[newState] + self.gamma * max(filter(lambda x: x in legalActions, self.Q))
 		print self.Q
-
 
 
 	def goRandomDirection(self):
