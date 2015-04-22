@@ -30,7 +30,6 @@ class GoWestPacman(Agent):
 		else:
 			return Directions.STOP
 
-<<<<<<< HEAD
 
 class SimpleQPacman(Agent):
 	"""
@@ -323,6 +322,3 @@ class SimpleExplorationPacman(Agent):
 # 		"""
 # 		pass 
 
-
-=======
->>>>>>> master

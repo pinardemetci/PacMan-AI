@@ -40,7 +40,6 @@ class path():
 		self.h_cost = None
 
 	def f_cost(self):
-		"""
 		Function to optimize Pacman Path. F = G + H
 		G = cost of moving from starting position to another position
 		H = Number of squares left

@@ -26,6 +26,7 @@ Continuously updating long-term plan - execute astar
 
 Higher level - build it as block strategies 
 	calculate maximum pellet intake 
+<<<<<<< HEAD
 
 
 
@@ -110,4 +111,5 @@ pi*(s) = argmax(sum[i=1:d](phi_i(s, a)* w_i) + b) for all  actions
 "on demand evaluation" for states you actually end up going to
 
 neuro fitted would allow you to do nonlinear (i.e. neural nets let you do this)
-
+=======
+>>>>>>> master
