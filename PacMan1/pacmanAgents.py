@@ -43,9 +43,11 @@ class SimpleQPacman(Agent):
 		# making this a dict will let us refer to features by names
 		# self.features = dict(zip(FEATURE_NAMES, np.zeros(len(FEATURE_NAMES))))
 		self.features = [NearestCapsuleFeature(0), NearestGhostFeature(1)] # could be done better
-		self.weights = np.zeros([1, len(self.features)])
+		self.weights = np.zeros(len(self.features))
+		self.learningRate = 0.5
+		self.discountFactor = 0.5
 		self.b = 0.5
-		self.explorationRate = 0.6
+		self.explorationRate = 0.5
 
 
 	def getAction(self, state):
@@ -85,52 +87,66 @@ class SimpleQPacman(Agent):
 		
 		return final_action
 
+	def getQValue(self, state, action):
+		"""
+		Q = phi*w ? (+ b)
+		"""
+		feature_copy = self.features.copy()
+		return sum([f.value * self.weights[f.index] for f in self.features])
+
 	def updateWeights(self, state):
 		"""
 		Change weights of each feature based on the change in that
 		feature from the last state.
 		"""
-		prevFeatures = np.asarray(self.feature_values)
-		newFeatures = np.asarray(self.extractFeaturesFromState(state))
-		delta_features = newFeatures - prevFeatures
 
-		# TODO: these next two lines can be combined
-		# mean food distance
-		self.weights[0] += delta_features[0] * self.getExpectedNextReward()
 
-		# capsule distance
-		self.weights[1] += delta_features[1] * self.getExpectedNextReward()
+		for f in self.features:
+			
+		# prevFeatures = np.asarray(self.feature_values)
+		# newFeatures = np.asarray(self.extractFeaturesFromState(state))
+		# delta_features = newFeatures - prevFeatures
 
-		# update self.feature_values
-		self.feature_values = self.extractFeaturesFromState(state)
+		# # TODO: these next two lines can be combined
+		# # mean food distance
+		# self.weights[0] += delta_features[0] * self.getExpectedNextReward()
+
+		# # capsule distance
+		# self.weights[1] += delta_features[1] * self.getExpectedNextReward()
+
+		# # update self.feature_values
+		# self.feature_values = self.extractFeaturesFromState(state)
 
 	def extractFeaturesFromState(self, state):
 		"""
 		phi(s) -- map the state onto features.
 		Updates and returns self.feature_values based on current state.
 		"""
-		pos = state.getPacmanPosition()
 
-		food = state.getFood().asList()
-		if len(food) > 0:
-			mean_food_dist = np.average([manhattanDistance(pos, f) for f in food])
-			self.feature_values[0] = mean_food_dist
-		else:
-			self.feature_values[0] = 0
+		for f in self.features:
+			f.extractFromState(state)
+		# pos = state.getPacmanPosition()
+
+		# food = state.getFood().asList()
+		# if len(food) > 0:
+		# 	mean_food_dist = np.average([manhattanDistance(pos, f) for f in food])
+		# 	self.feature_values[0] = mean_food_dist
+		# else:
+		# 	self.feature_values[0] = 0
 		
 
-		capsules = state.getCapsules()
-		if len(capsules) > 0:
-			caps_dists = [manhattanDistance(pos, c) for c in capsules]
-			self.feature_values[1] = min(caps_dists)
-		else:
-			self.feature_values[1] = 0
+		# capsules = state.getCapsules()
+		# if len(capsules) > 0:
+		# 	caps_dists = [manhattanDistance(pos, c) for c in capsules]
+		# 	self.feature_values[1] = min(caps_dists)
+		# else:
+		# 	self.feature_values[1] = 0
 		
-		return self.feature_values
+		# return self.feature_values
 
-		# ghosts = state.getGhostPositions()
-		# ghost_dists = [manhattanDistance(pos, g) for g in ghosts]
-		# self.feature_values['nearest_ghost_dist'] = min(ghost_dists)
+		# # ghosts = state.getGhostPositions()
+		# # ghost_dists = [manhattanDistance(pos, g) for g in ghosts]
+		# # self.feature_values['nearest_ghost_dist'] = min(ghost_dists)
 
 	def getExpectedNextReward(self, state, action, sucessor):
 		"""
