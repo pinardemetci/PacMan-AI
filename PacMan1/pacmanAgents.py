@@ -232,18 +232,16 @@ class SimpleExplorationPacman(Agent):
 		else:
 			return False
 
-class Features():
-	def __init__(self):
 
 class PacManAgentLearning():
 	"""
 	Implementing Q-learning with  Online, Off-Policy Value Approximation.
 	"""
-	def __init__(self,learningRate, explorationRate, discount, features):
-		self.alpha = learningRate
-		self.exploration = explorationRate
-		self.gamma = discount
-		self.features = features
+	def __init__(self):
+		self.alpha = 0.1 #learningRate
+		self.exploration = 0 #explorationRate
+		self.gamma = 0.8 #discount
+		self.features = [NearestCapsuleFeature(0), NearestGhostFeature(1)] #features
 
 	def getExpectedReward(self, state, nextState):
 		"""
@@ -251,42 +249,60 @@ class PacManAgentLearning():
 		by 
 		Score_of_next_state - Current_Score
 		"""
-		pass
+		successor = state.generateSuccessor(0, a)
+		return successor.getScore() - state.getScore()		
 
-	def getQ(self):
+	def getQ(self,state):
 		"""
-		Gets the Q value of the current state to use in updateWeights function.
-		Q (s(t),a)
+		Gets the Q value of the state to use in updateWeights function.
 		"""
-		pass
-		self.Q[newState] = self.R[newState] + self.gamma * max(filter(lambda x: x in legalActions, self.Q))
-		print self.Q
+		successor = state.generateSuccessor(0, a)
+		Q= self.getExpectedReward(state)+ (self.gamma * self.getQ(successor))
 
-	def updateQ(self):
-		"""
-		Computes the maximum of Q values of all the possible states PacMan can move into.
-		Q (s(t+1), a)
-		"""
-		pass
-
-	def updateWeights(self):
+	def updateWeights(self, state, nextstate):
 		"""
 		Updates the weights of the features by trying to converge the approximated Q to real Q meaning: min( (Q_real - Q_app)**2).
 		This is where the learning happens.
 		"""
 		reward = self.getExpectedReward(state,nextstate)
-		Q_t= self.getQ()
-		Q_t1= self.updateQ()
 
-		weights_new = self.features.weights + ( self.alpha*(reward + (self.gamma*Q_t1) - Q_t)*self.features)
+		Q_t= self.getQ(state)
+		Q_t1= self.getQ(nextstate)
 
-		self.features.weights = weights_new  #to update the weights of the features
+		for f in self.features:
+			f.weight= f.weight + ( self.alpha*(reward + (self.gamma*Q_t1) - Q_t)*f.value)
 
-		return weight_new
+	def getAction(self, state):
+		"""
+		Returns the next action to take for each state
+		"""
+		legalActions = state.getLegalActions()
+		# can't stop won't stop
+		legalActions.remove(Directions.STOP)
+		# 
+		q = dict(zip(legalActions, np.zeros(len(legalActions))))
 
+		action = None
 
+		for f in self.features:
+			for a in legalActions:
+				newstate = state.generateSuccessor(0, a)
+				q[a] += f.extractFromState(newstate) * f.weight
 
+		print q
 
+		q_max = max(q.values())
+		for k, v in q.items():
+			if v == q_max:
+				print k
+				action = k
+
+		final_action = action
+
+		next_pos = state.generateSuccessor(0, final_action).getPacmanPosition()
+		self.updateWeights(state, state.generateSuccessor(0,final_action))
+		
+		return final_action
 
 
 # class ActualReinforcementPacman(Agent):
