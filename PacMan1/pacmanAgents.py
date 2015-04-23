@@ -5,6 +5,7 @@ Glue for interfacing with the Berkeley code.
 
 import operator
 import random
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -39,15 +40,19 @@ class SimpleQPacman(Agent):
 
 	def __init__(self):
 		super(Agent, self).__init__()
-		# FEATURE_NAMES = ['mean_food_dist', 'nearest_capsule_dist', 'nearest_ghost_dist']
-		# making this a dict will let us refer to features by names
-		# self.features = dict(zip(FEATURE_NAMES, np.zeros(len(FEATURE_NAMES))))
-		self.features = [NearestCapsuleFeature(0), NearestGhostFeature(1)] # could be done better
-		self.weights = np.zeros(len(self.features))
-		self.learningRate = 0.5
-		self.discountFactor = 0.5
-		self.b = 0.5
-		self.explorationRate = 0.5
+		# try:
+		# fs = pickle.load(open('features.p', 'rb'))
+		# with open('features.p', 'rb') as f:
+		# 	weights = pickle.load(f)
+		# 	print 'WEIGHTS', weights
+		# 	self.features = [NearestCapsuleFeature(weight=weights[0]), NearestGhostFeature(weight=weights[1])]
+		# except:
+			# print "didn't work"
+		self.features = [NearestCapsuleFeature(), NearestGhostFeature()]
+
+		self.learningRate = 0.005
+		self.discountFactor = 0.7
+		self.explorationRate = 0.25
 
 
 	def getAction(self, state):
@@ -55,106 +60,109 @@ class SimpleQPacman(Agent):
 		Takes in a GameState object, calculates the optimal (or not)
 		next action, returns that action.
 		"""
-		self.updateWeights(state)
-		legalActions = state.getLegalActions()
-		# can't stop won't stop
-		legalActions.remove(Directions.STOP)
-		# 
-		q = dict(zip(legalActions, np.zeros(len(legalActions))))
+		self.updateFeatures(state)
 
-		action = None
-
-		for i in range(len(self.feature_values)):
-			for a in legalActions:
-				newstate = state.generateSuccessor(0, a)
-				q[a] += self.extractFeaturesFromState(newstate)[i] * self.weights[i] + self.b
-
-		print q
-
-		q_max = max(q.values())
-		for k, v in q.items():
-			if v == q_max:
-				print k
-				action = k
+		action = self.getMaxQAction(state)
 
 		# to explore or not 
 		if self.isExploring():
+			legalActions = state.getLegalActions()
+			# can't stop won't stop
+			# if Directions.STOP in legalActions:
+			# 	legalActions.remove(Directions.STOP)
+
 			final_action = random.choice(legalActions)
 		else:
 			final_action = action
 
-		next_pos = state.generateSuccessor(0, final_action).getPacmanPosition()
+		# next_pos = state.generateSuccessor(0, final_action).getPacmanPosition()
+		nextState = state.generateSuccessor(0, final_action)
+		self.updateWeights(state, final_action)
 		
 		return final_action
+
+	def getApproximateQValue(self, state):
+		# get a tuple (expected value, weight) for each feature
+		fs = [(f.extractFromState(state), f.weight) for f in self.features]
+		# multiplies the current weight by an expected (or current) feature value
+		return sum([f[0]*f[1] for f in fs])
 
 	def getQValue(self, state, action):
 		"""
 		Q = phi*w ? (+ b)
 		"""
-		feature_copy = self.features.copy()
-		return sum([f.value * self.weights[f.index] for f in self.features])
+		currentQ = self.getApproximateQValue(state)
+		nextState = state.generateSuccessor(0, action)
+		r = self.getExpectedNextReward(state, action)
+		return (1 - self.learningRate) * currentQ + self.learningRate*(r + self.discountFactor*self.getApproximateQValue(nextState))
 
-	def updateWeights(self, state):
+	def getMaxQ(self, state):
+		"""
+		Get the maximum Q value for the actions available.
+		"""
+		if state.isWin() or state.isLose():
+			print "IN MAXQ"
+			print "win? ", nextState.isWin()
+			print "lose? ", nextState.isLose()
+			return (Directions.STOP, getApproximateQValue(state))
+		else:
+			legalActions = state.getLegalActions()
+			# TODO: only do this once
+			# if Directions.STOP in legalActions:
+			# 	legalActions.remove(Directions.STOP)
+			actionValuePairs = []
+			for a in legalActions:
+				print a, self.getQValue(state, a)
+				actionValuePairs.append((a, self.getQValue(state, a)))
+
+			return max(actionValuePairs, key=operator.itemgetter(1))
+
+	def getMaxQValue(self, state):
+		return self.getMaxQ(state)[1]
+
+	def getMaxQAction(self, state):
+		return self.getMaxQ(state)[0]
+
+	def updateWeights(self, state, action):
 		"""
 		Change weights of each feature based on the change in that
 		feature from the last state.
+		w_t+1 = w_t + alpha(r_t+1 + gamma* max(a)Q(s', a) - Q(s, a))*phi_t
 		"""
+		print "in updateWeights"
+		nextState = state.generateSuccessor(0, action)
+		expectedReward = self.getExpectedNextReward(state, action)
 
+		# dump the features
+		if nextState.isWin() or nextState.isLose():
+			print "win? ", nextState.isWin()
+			print "lose? ", nextState.isLose()
+			print 'PICKLING'
+			pickle.dump([f.weight for f in self.features], open('features.p', 'wb'))
 
 		for f in self.features:
-			
-		# prevFeatures = np.asarray(self.feature_values)
-		# newFeatures = np.asarray(self.extractFeaturesFromState(state))
-		# delta_features = newFeatures - prevFeatures
+			f.weight = f.weight + self.learningRate*(expectedReward + self.discountFactor*self.getMaxQValue(nextState) - self.getQValue(state, action))*f.value
 
-		# # TODO: these next two lines can be combined
-		# # mean food distance
-		# self.weights[0] += delta_features[0] * self.getExpectedNextReward()
 
-		# # capsule distance
-		# self.weights[1] += delta_features[1] * self.getExpectedNextReward()
 
-		# # update self.feature_values
-		# self.feature_values = self.extractFeaturesFromState(state)
-
-	def extractFeaturesFromState(self, state):
+	def updateFeatures(self, state):
 		"""
-		phi(s) -- map the state onto features.
-		Updates and returns self.feature_values based on current state.
+		Actually update the feature values instead of just looking at them.
 		"""
-
 		for f in self.features:
-			f.extractFromState(state)
-		# pos = state.getPacmanPosition()
+			f.updateValue(state)
 
-		# food = state.getFood().asList()
-		# if len(food) > 0:
-		# 	mean_food_dist = np.average([manhattanDistance(pos, f) for f in food])
-		# 	self.feature_values[0] = mean_food_dist
-		# else:
-		# 	self.feature_values[0] = 0
-		
 
-		# capsules = state.getCapsules()
-		# if len(capsules) > 0:
-		# 	caps_dists = [manhattanDistance(pos, c) for c in capsules]
-		# 	self.feature_values[1] = min(caps_dists)
-		# else:
-		# 	self.feature_values[1] = 0
-		
-		# return self.feature_values
-
-		# # ghosts = state.getGhostPositions()
-		# # ghost_dists = [manhattanDistance(pos, g) for g in ghosts]
-		# # self.feature_values['nearest_ghost_dist'] = min(ghost_dists)
-
-	def getExpectedNextReward(self, state, action, sucessor):
+	def getExpectedNextReward(self, state, action):
 		"""
 		r_t+1 = R(s_t, a_t, s_t+1)
 		Reward currently equal to the change in score between this state and the next.
-		Not currently using action for anything, but the paper has it in there.
 		"""
-		return successor.getScore() - state.getScore()
+		# TODO: make a separate "reward" for when pacman loses the game, otherwise
+		# he'll never learn that ghosts are bad
+		nextState = state.generateSuccessor(0, action)
+		print nextState.getScore() - state.getScore()
+		return nextState.getScore() - state.getScore()
 
 	def isExploring(self):
 		""" 
