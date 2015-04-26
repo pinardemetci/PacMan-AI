@@ -233,6 +233,8 @@ class SimpleExplorationPacman(Agent):
 			return False
 
 
+### Return the getQ thing back to its original version
+### Manhattan Distance with walls
 class PacManAgentLearning():
 	"""
 	Implementing Q-learning with  Online, Off-Policy Value Approximation.
@@ -242,32 +244,65 @@ class PacManAgentLearning():
 		self.exploration = 0 #explorationRate
 		self.gamma = 0.8 #discount
 		self.features = [NearestCapsuleFeature(0), NearestGhostFeature(1)] #features
+		self.explorationRate=0.0
 
-	def getExpectedReward(self, state, nextState):
+	def returnAction(self,state):
+		"""
+		Returns the next action to take for each state
+		"""
+		legalActions = state.getLegalActions()
+		# can't stop won't stop
+		legalActions.remove(Directions.STOP)
+		# 
+		q = dict(zip(legalActions, np.zeros(len(legalActions))))
+
+		action = None
+
+		for f in self.features:
+			for a in legalActions:
+				newstate = state.generateSuccessor(0, a)
+				q[a] += f.extractFromState(newstate) * f.weight
+
+		print q
+
+		q_max = max(q.values())
+		for k, v in q.items():
+			if v == q_max:
+				print k
+				action = k
+
+		final_action = action
+
+	def getExpectedReward(self, state, nextState, a):
 		"""
 		Computes R(s, a, s')
 		by 
 		Score_of_next_state - Current_Score
 		"""
+		a = self.returnAction(state)
 		successor = state.generateSuccessor(0, a)
 		return successor.getScore() - state.getScore()		
 
-	def getQ(self,state):
+	def getQ(self,state,a):
 		"""
 		Gets the Q value of the state to use in updateWeights function.
 		"""
+		a = self.returnAction(state)
 		successor = state.generateSuccessor(0, a)
-		Q= self.getExpectedReward(state)+ (self.gamma * self.getQ(successor))
+		Q= self.getExpectedReward(state, successor, a)+ (self.gamma * self.getQ(successor,a))
+		self.Q=Q
+		return Q
 
-	def updateWeights(self, state, nextstate):
+	def updateWeights(self, state, nextstate, a):
 		"""
 		Updates the weights of the features by trying to converge the approximated Q to real Q meaning: min( (Q_real - Q_app)**2).
 		This is where the learning happens.
 		"""
-		reward = self.getExpectedReward(state,nextstate)
+		a = self.returnAction(state)
+		reward = self.getExpectedReward(state, nextstate, a)
 
-		Q_t= self.getQ(state)
-		Q_t1= self.getQ(nextstate)
+		Q_t= self.getQ(state, a)
+		Q_t1= self.getQ(nextstate, a)
 
 		for f in self.features:
 			f.weight= f.weight + ( self.alpha*(reward + (self.gamma*Q_t1) - Q_t)*f.value)
@@ -298,11 +333,14 @@ class PacManAgentLearning():
 				action = k
 
 		final_action = action
-
-		next_pos = state.generateSuccessor(0, final_action).getPacmanPosition()
-		self.updateWeights(state, state.generateSuccessor(0,final_action))
+		nextstate = state.generateSuccessor(0, final_action)
+		self.updateWeights(state,nextstate,final_action)
 		
+
+	
 		return final_action
+
+		
 
 
 # class ActualReinforcementPacman(Agent):
