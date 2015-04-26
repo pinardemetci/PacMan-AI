@@ -29,35 +29,40 @@ class Astar2Pacman(Agent):
 		"""Astar function that runs the show"""
 		self.open_list = [] #Set of nodes already evaluated
 		self.closed_list = [] #Tentative nodes to be evaluated
-		# self.came_from = [] #map of navigated nodes
-		# self.direction = []
 		self.current_tile = []
 
 		costs = {} #The size of the game board to store g, h and f cost values
-		for x in range(18):
-			for y in range(9):
+		for x in range(1,19):
+			for y in range(1,10):
 				costs[(x, y)] = Tile((x,y))
 		costs[self.coordinates].g_cost = 0
 		costs[self.coordinates].h_cost = self.get_h_cost(start, goal)
 		costs[self.coordinates].f_cost = costs[self.coordinates].g_cost + costs[self.coordinates].h_cost
-
 		self.open_list.append(costs[self.coordinates])
 
 		while len(self.open_list) > 0:
 			tile = self.get_lowest_cost_open_coord(self.open_list)
-			self.open_list.append(tile)
+			print tile.coordinates
+			self.open_list.remove(tile)
+			self.closed_list.append(tile)
 
 			open_coords, relative_direction, tile_cost = self.get_open_adj_coords(state, tile.coordinates)
+			# print open_coords, relative_direction, tile_cost
 			for i, coord in enumerate(open_coords):
 				if coord == goal:
-					print reconstruct_path(open_list, coord)
-				costs[coord].g_cost = tile.g_cost + tile_cost[i]
-				costs[coord].h_cost = self.get_h_cost(coord, goal)
-				costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
-				
-				if coord in self.closed_list:
+					print coord
+					costs[coord].g_cost = tile.g_cost + tile_cost[i]
+					costs[coord].h_cost = self.get_h_cost(coord, goal)
+					costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
+					print costs[coord].g_cost
+					print costs[coord].h_cost
+					print costs[coord].f_cost
+					self.open_list = []
+					break
+
+				if costs[coord] in self.closed_list:
 					pass
-				elif coord not in self.open_list:
+				elif costs[coord] not in self.open_list:
 					self.open_list.append(costs[coord])
 					costs[coord].g_cost = tile.g_cost + tile_cost[i]
 					costs[coord].h_cost = self.get_h_cost(coord, goal)
@@ -67,7 +72,6 @@ class Astar2Pacman(Agent):
 					if costs[coord].f_cost > costs[coord].g_cost + costs[coord].h_cost:
 						costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
 						costs[coord].parent = tile
-
 
 	def getAction(self, state):
 		"""
@@ -131,6 +135,7 @@ class Astar2Pacman(Agent):
 	def reconstruct_path(open_list, current):
 		total_path = [current]
 		while current in open_list:
+			print current
 			total_path.append(current)
 		return total_path
 
@@ -145,3 +150,9 @@ class Tile():
 		self.g_cost = g_cost
 		self.h_cost = h_cost
 		self.f_cost = f_cost
+
+	def __str__(self):
+		return str(self.coordinates)
+
+	def __repr__(self):
+	    return str(self.coordinates)
