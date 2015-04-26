@@ -41,23 +41,23 @@ class SimpleQPacman(Agent):
 	Starting over, AGAIN
 	"""
 
-	def __init__(self):
-		super(Agent, self).__init__()
-		# try:
-		fs = pickle.load(open('features.p', 'rb'))
-		print fs
-		with open('features.p', 'rb') as f:
-			weights = pickle.load(f)
-			print 'WEIGHTS', weights
-			self.features = [NearestCapsuleFeature(weight=weights[0]), NearestGhostFeature(weight=weights[1])]
-		# raise RuntimeError
-		# except:
-			# print "didn't work"
-		# self.features = [NearestCapsuleFeature(), NearestGhostFeature()]
+	def __init__(self, fromPickle=True):
+		
+		if fromPickle:
+			fs = pickle.load(open('features.p', 'rb'))
+			print fs
+			with open('features.p', 'rb') as f:
+				weights = pickle.load(f)
+				print 'WEIGHTS', weights
+				self.features = [NearestCapsuleFeature(weight=weights[0]), NearestGhostFeature(weight=weights[1])]
+		else:
+			self.features = [NearestCapsuleFeature(), NearestGhostFeature()]
 
 		self.learningRate = 0.0075
 		self.discountFactor = 0.7
 		self.explorationRate = 0.1
+
+		super(Agent, self).__init__()
 
 
 	def getAction(self, state):

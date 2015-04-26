@@ -2,7 +2,7 @@ import random
 from util import manhattanDistance
 
 class Feature(object):
-	def __init__(self, value=0, weight=0):
+	def __init__(self, value=random.random(), weight=random.random()):
 		"""
 		Follwing the same pattern as Agent; the index is for the 
 		Agent object to know which one it is in the list.
@@ -10,19 +10,24 @@ class Feature(object):
 		self.value = value
 		self.weight = weight
 
+	def __str__(self):
+		return "%s | value: %f | weight: %f" % (self.__class__.__name__, self.value, self.weight)
+
 	def extractFromState(self, state):
 		"""
 		Map the state onto the feature space (i.e. a real number).
+		Gets the value, doesn't update it.
 		"""
 		raise NotImplementedError
 
+	def updateValue(self, state):
+		"""
+		Updates the value based on the state.
+		"""
+		self.value = self.extractFromState(state)
+		print self
+
 class NearestCapsuleFeature(Feature):
-	def __init__(self, weight=random.random()):
-		super(Feature, self).__init__()
-		# wtf python
-		# these next two lines shouldn't be necessary if I use super()
-		self.value = random.random()
-		self.weight = weight
 
 	def extractFromState(self, state):
 		pos = state.getPacmanPosition()
@@ -36,17 +41,12 @@ class NearestCapsuleFeature(Feature):
 		else:
 			return 0
 
-	def updateValue(self, state):
-		self.value = self.extractFromState(state)
-
-	def __str__(self):
-		return "Nearest Capsule: " + str(self.value)
 
 class NearestGhostFeature(Feature):
-	def __init__(self, weight=random.random()):
-			super(Feature, self).__init__()
-			self.value = random.random()
-			self.weight = weight
+	# def __init__(self, weight=random.random()):
+	# 		super(Feature, self).__init__()
+	# 		self.value = random.random()
+	# 		self.weight = weight
 
 	def extractFromState(self, state):
 		pos = state.getPacmanPosition()
@@ -59,17 +59,3 @@ class NearestGhostFeature(Feature):
 		# otherwise, return 0 (this could be a bad idea)
 		else:
 			return 0
-
-	def updateValue(self, state):
-		self.value = self.extractFromState(state)
-
-	def __str__(self):
-		return "Nearest Ghost: " + str(self.value)
-
-# class TimeSinceCapsuleFeature(Feature):
-# 	def __init__(self, index):
-# 		super(Feature, self).__init__(index)
-
-# 	def extractFromState(self, state):
-# 		# hmm, we can't actually get this from the state
-# 		pass
