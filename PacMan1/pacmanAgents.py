@@ -15,6 +15,9 @@ from layout import Layout
 from util import manhattanDistance
 from features import NearestCapsuleFeature, NearestGhostFeature
 
+# STASH DEMO
+
+
 class GoWestPacman(Agent):
 	"""
 	Our implementation of what used to be GoWestAgent.
@@ -41,18 +44,20 @@ class SimpleQPacman(Agent):
 	def __init__(self):
 		super(Agent, self).__init__()
 		# try:
-		# fs = pickle.load(open('features.p', 'rb'))
-		# with open('features.p', 'rb') as f:
-		# 	weights = pickle.load(f)
-		# 	print 'WEIGHTS', weights
-		# 	self.features = [NearestCapsuleFeature(weight=weights[0]), NearestGhostFeature(weight=weights[1])]
+		fs = pickle.load(open('features.p', 'rb'))
+		print fs
+		with open('features.p', 'rb') as f:
+			weights = pickle.load(f)
+			print 'WEIGHTS', weights
+			self.features = [NearestCapsuleFeature(weight=weights[0]), NearestGhostFeature(weight=weights[1])]
+		# raise RuntimeError
 		# except:
 			# print "didn't work"
-		self.features = [NearestCapsuleFeature(), NearestGhostFeature()]
+		# self.features = [NearestCapsuleFeature(), NearestGhostFeature()]
 
-		self.learningRate = 0.005
+		self.learningRate = 0.0075
 		self.discountFactor = 0.7
-		self.explorationRate = 0.25
+		self.explorationRate = 0.1
 
 
 	def getAction(self, state):
@@ -94,7 +99,9 @@ class SimpleQPacman(Agent):
 		currentQ = self.getApproximateQValue(state)
 		nextState = state.generateSuccessor(0, action)
 		r = self.getExpectedNextReward(state, action)
-		return (1 - self.learningRate) * currentQ + self.learningRate*(r + self.discountFactor*self.getApproximateQValue(nextState))
+		q = (1 - self.learningRate) * currentQ + self.learningRate*(r + self.discountFactor*self.getApproximateQValue(nextState))
+		# print "Q value: ", q
+		return q
 
 	def getMaxQ(self, state):
 		"""
@@ -102,9 +109,9 @@ class SimpleQPacman(Agent):
 		"""
 		if state.isWin() or state.isLose():
 			print "IN MAXQ"
-			print "win? ", nextState.isWin()
-			print "lose? ", nextState.isLose()
-			return (Directions.STOP, getApproximateQValue(state))
+			print "win? ", state.isWin()
+			print "lose? ", state.isLose()
+			return (Directions.STOP, self.getApproximateQValue(state))
 		else:
 			legalActions = state.getLegalActions()
 			# TODO: only do this once
@@ -112,7 +119,7 @@ class SimpleQPacman(Agent):
 			# 	legalActions.remove(Directions.STOP)
 			actionValuePairs = []
 			for a in legalActions:
-				print a, self.getQValue(state, a)
+				# print a, self.getQValue(state, a)
 				actionValuePairs.append((a, self.getQValue(state, a)))
 
 			return max(actionValuePairs, key=operator.itemgetter(1))
@@ -161,7 +168,7 @@ class SimpleQPacman(Agent):
 		# TODO: make a separate "reward" for when pacman loses the game, otherwise
 		# he'll never learn that ghosts are bad
 		nextState = state.generateSuccessor(0, action)
-		print nextState.getScore() - state.getScore()
+		# print nextState.getScore() - state.getScore()
 		return nextState.getScore() - state.getScore()
 
 	def isExploring(self):
@@ -173,6 +180,8 @@ class SimpleQPacman(Agent):
 			return True
 		else:
 			return False 
+
+#################################################################################
 
 class SimpleExplorationPacman(Agent):
 	"""
@@ -242,7 +251,7 @@ class SimpleExplorationPacman(Agent):
 		legalActions: [0] or [0, 1] depending on if any unexplored cells are legally moveable-to
 		"""
 		self.Q[newState] = self.R[newState] + self.gamma * max(filter(lambda x: x in legalActions, self.Q))
-		print self.Q
+		print "updated Q: ", self.Q
 
 
 	def goRandomDirection(self):
