@@ -148,7 +148,7 @@ class AgentState:
     def copy( self ):
         state = AgentState( self.start, self.isPacman )
         state.configuration = self.configuration
-        state.scaredTimer = self.scaredTimer #print out sometime to learn more
+        state.scaredTimer = self.scaredTimer #print out sometime
         state.numCarrying = self.numCarrying #This is zero everywhere and may be deleted
         state.numReturned = self.numReturned # "   "
         return state
@@ -160,7 +160,7 @@ class AgentState:
     def getDirection(self):
         return self.configuration.getDirection()
 
-class Grid:
+class Grid(object):
     """
     A 2-dimensional array of objects backed by a list of lists.  Data is accessed
     via grid[x][y] where (x,y) are positions on a Pacman map with x horizontal,
@@ -170,7 +170,7 @@ class Grid:
     """
     def __init__(self, width, height, initialValue=False, bitRepresentation=None):
         if initialValue not in [False, True]: raise Exception('Grids can only contain booleans')
-        self.CELLS_PER_INT = 30
+        self.CELLS_PER_INT = 30 #Why are you 30?
 
         self.width = width
         self.height = height
