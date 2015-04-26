@@ -143,6 +143,7 @@ class AgentState:
         self.scaredTimer = 0 
         self.numCarrying = 0
         self.numReturned = 0
+        # print "hello! I am an Agent State"
 
     def __str__( self ):
         if self.isPacman:
