@@ -1,0 +1,33 @@
+SoftDes Final Project Work
+
+Artifacts/Deliverables:
+- Code
+- Website
+- Poster
+
+Audiences:
+- Topic Learners
+- Code users
+- Employers/resume/portfolio
+- visitors/family/friends
+
+Project website and portfolio best practices:
+- Website that we wish we had when we started the project
+- Draft ahead of time
+- Story to include
+- Layers: give opportunity for people to dig in at different levels
+	> Link to code + Good comments in code
+	> Broad to focused
+- Code Diagrams: Architecture, Flow chart, class diagram
+	> Do not include big blocks of code
+- Showing what you did
+	> Deltas: show where you started and how you progressed (visualization, evaluation)
+	> Telling the story
+	> Video/screen shots
+- Telling why you did the project: Inspiration, why it needed to happen, big idea
+	> Core essence of project
+	> One sentence or clause
+- Practical: how to instell and run code
+
+
+
