@@ -171,9 +171,7 @@ class SimpleQPacman(Agent):
         else:
             return False
 
-#################################################################################
-
-
+##########################################################################
 class SimpleExplorationPacman(Agent):
     """
     A Pacman agent that uses a VERY simple q-learning algorithm in which the states

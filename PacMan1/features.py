@@ -1,5 +1,6 @@
 import random
 from util import manhattanDistance
+from util2 import *
 
 
 class Feature(object):
@@ -79,3 +80,4 @@ class NearestScaredGhostFeature(Feature):
             return min(scared_ghost_dists)
         else:
             return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
+
