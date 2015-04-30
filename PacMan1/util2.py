@@ -30,6 +30,7 @@ def Astar(state, start, goal, layout):
 	costs[start].h_cost = get_h_cost(start, goal)
 	costs[start].f_cost = costs[start].g_cost + costs[start].h_cost
 	open_list.append(costs[start])
+	print "open_list", open_list
 
 
 	while len(open_list) > 0:
@@ -45,7 +46,8 @@ def Astar(state, start, goal, layout):
 				costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
 				# print costs[coord].g_cost
 				# print costs[coord].h_cost
-				print costs[coord].f_cost
+
+				print costs[coord], costs[coord].f_cost
 				return costs[coord].f_cost
 				open_list = []
 				break
