@@ -41,11 +41,12 @@ class NearestCapsuleFeature(Feature):
 
         # if there are capsules, return the minimum distance to a capsule
         if len(capsules) > 0:
-            caps_dists = [manhattanDistance(pos, c) for c in capsules]
+            caps_dists = [Astar(state, pos, c, state.data.layout) for c in capsules]
             return min(caps_dists)
         # otherwise, return a distance slightly larger than any distance for an extant thing
         else:
-            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
+        	return Astar(state, pos, (1,1), state.data.layout)
+            # return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
 
 
 class NearestNormalGhostFeature(Feature):
@@ -59,7 +60,7 @@ class NearestNormalGhostFeature(Feature):
         normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts)
 
         if len(normal_ghosts) > 0:
-            normal_ghost_dists = [manhattanDistance(pos, n.getPosition()) for n in normal_ghosts]
+            normal_ghost_dists = [Astar(state, pos, n.getPosition(), state.data.layout) for n in normal_ghosts]
             return min(normal_ghost_dists)
         else:
             return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
@@ -76,7 +77,7 @@ class NearestScaredGhostFeature(Feature):
         scared_ghosts = filter(lambda g: g.scaredTimer > 0, ghosts)
 
         if len(scared_ghosts) > 0:
-            scared_ghost_dists = [manhattanDistance(pos, s.getPosition()) for s in scared_ghosts]
+            scared_ghost_dists = [Astar(state, pos, s.getPosition(), state.data.layout) for s in scared_ghosts]
             return min(scared_ghost_dists)
         else:
             return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
