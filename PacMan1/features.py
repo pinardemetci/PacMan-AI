@@ -1,75 +1,84 @@
 import random
 from util import manhattanDistance
+from util2 import *
+
 
 class Feature(object):
-	def __init__(self, value=0, weight=0):
-		"""
-		Follwing the same pattern as Agent; the index is for the 
-		Agent object to know which one it is in the list.
-		"""
-		self.value = value
-		self.weight = weight
+    def __init__(self, value=random.random(), weight=random.random()):
+        """
+        Follwing the same pattern as Agent; the index is for the
+        Agent object to know which one it is in the list.
+        """
+        self.value = value
+        self.weight = weight
 
-	def extractFromState(self, state):
-		"""
-		Map the state onto the feature space (i.e. a real number).
-		"""
-		raise NotImplementedError
+    def __str__(self):
+        return "%s | value: %f | weight: %f" % (self.__class__.__name__, self.value, self.weight)
+
+    def extractFromState(self, state):
+        """
+        Map the state onto the feature space (i.e. a real number).
+        Gets the value, doesn't update it.
+        """
+        raise NotImplementedError
+
+    def updateValue(self, state):
+        """
+        Updates the value based on the state.
+        """
+        self.value = self.extractFromState(state)
+        print self
+
 
 class NearestCapsuleFeature(Feature):
-	def __init__(self, weight=random.random()):
-		super(Feature, self).__init__()
-		# wtf python
-		# these next two lines shouldn't be necessary if I use super()
-		self.value = random.random()
-		self.weight = weight
+    """
+    Distance to the nearest capsule.
+    """
 
-	def extractFromState(self, state):
-		pos = state.getPacmanPosition()
-		capsules = state.getCapsules()
+    def extractFromState(self, state):
+        pos = state.getPacmanPosition()
+        capsules = state.getCapsules()
+        layout = state.data.layout
 
-		# if there are capsules, return the minimum distance to a capsule
-		if len(capsules) > 0:
-			caps_dists = [manhattanDistance(pos, c) for c in capsules]
-			return min(caps_dists)
-		# otherwise, return 0 (this could be a bad idea)
-		else:
-			return 0
+        # if there are capsules, return the minimum distance to a capsule
+        if len(capsules) > 0:
+            caps_dists = [Astar(state, pos, c, layout) for c in capsules]
+            return min(caps_dists)
+        # otherwise, return a distance slightly larger than any distance for an extant thing
+        else:
+            # return Astar(state, pos, (1, 1), state.data.layout)
+            return manhattanDistance((0, 0), (layout.width, layout.height))
 
-	def updateValue(self, state):
-		self.value = self.extractFromState(state)
 
-	def __str__(self):
-		return "Nearest Capsule: " + str(self.value)
+class NearestNormalGhostFeature(Feature):
+    """
+    Distance to the nearest non-scared ghost.
+    """
 
-class NearestGhostFeature(Feature):
-	def __init__(self, weight=random.random()):
-			super(Feature, self).__init__()
-			self.value = random.random()
-			self.weight = weight
+    def extractFromState(self, state):
+        pos = state.getPacmanPosition()
+        ghosts = state.getGhostStates()
+        normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts)
 
-	def extractFromState(self, state):
-		pos = state.getPacmanPosition()
-		ghosts = state.getGhostPositions()
+        if len(normal_ghosts) > 0:
+            normal_ghost_dists = [Astar(state, pos, n.getPosition(), state.data.layout) for n in normal_ghosts]
+            return min(normal_ghost_dists)
+        else:
+            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
 
-		# if there are ghosts, return the minimum distance to a ghost
-		if len(ghosts) > 0:
-			ghost_dists = [manhattanDistance(pos, g) for g in ghosts]
-			return min(ghost_dists)
-		# otherwise, return 0 (this could be a bad idea)
-		else:
-			return 0
 
-	def updateValue(self, state):
-		self.value = self.extractFromState(state)
+class NearestScaredGhostFeature(Feature):
+    """
+    Distance to the nearest scared ghost.
+    """
 
-	def __str__(self):
-		return "Nearest Ghost: " + str(self.value)
+    def extractFromState(self, state):
+        pos = state.getPacmanPosition()
+        ghosts = state.getGhostStates()
+        scared_ghosts = filter(lambda g: g.scaredTimer > 0, ghosts)
 
-# class TimeSinceCapsuleFeature(Feature):
-# 	def __init__(self, index):
-# 		super(Feature, self).__init__(index)
-
-# 	def extractFromState(self, state):
-# 		# hmm, we can't actually get this from the state
-# 		pass
+        if len(scared_ghosts) > 0:
+            scared_ghost_dists = [Astar(state, pos, s.getPosition(), state.data.layout) for s in scared_ghosts]
+            return min(scared_ghost_dists)
+        else:
+            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
