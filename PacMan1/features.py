@@ -38,15 +38,16 @@ class NearestCapsuleFeature(Feature):
     def extractFromState(self, state):
         pos = state.getPacmanPosition()
         capsules = state.getCapsules()
+        layout = state.data.layout
 
         # if there are capsules, return the minimum distance to a capsule
         if len(capsules) > 0:
-            caps_dists = [Astar(state, pos, c, state.data.layout) for c in capsules]
+            caps_dists = [Astar(state, pos, c, layout) for c in capsules]
             return min(caps_dists)
         # otherwise, return a distance slightly larger than any distance for an extant thing
         else:
-        	return Astar(state, pos, (1,1), state.data.layout)
-            # return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
+            # return Astar(state, pos, (1, 1), state.data.layout)
+            return manhattanDistance((0, 0), (layout.width, layout.height))
 
 
 class NearestNormalGhostFeature(Feature):
@@ -81,4 +82,3 @@ class NearestScaredGhostFeature(Feature):
             return min(scared_ghost_dists)
         else:
             return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
-

@@ -45,7 +45,7 @@ class SimpleQPacman(Agent):
                 self.features = [NearestCapsuleFeature(weight=weights[0]), NearestNormalGhostFeature(weight=weights[1]), NearestScaredGhostFeature(weight=weights[2])]
         else:
             # self.features = [NearestCapsuleFeature(), NearestNormalGhostFeature(), NearestScaredGhostFeature()]
-            self.features = [NearestCapsuleFeature(), NearestNormalGhostFeature()]
+            self.features = [NearestCapsuleFeature(), NearestNormalGhostFeature(), NearestScaredGhostFeature()]
 
         self.learningRate = 0.001
         self.discountFactor = 0.7
@@ -128,7 +128,8 @@ class SimpleQPacman(Agent):
         # print "in updateWeights"
         nextState = state.generateSuccessor(0, action)
         expectedReward = self.getExpectedNextReward(state, action)
-        print nextState.isWin(), nextState.isLose()
+        # print nextState.isWin(), nextState.isLose()
+
 
         # dump the features
         # if nextState.isWin() or nextState.isLose():
@@ -159,6 +160,7 @@ class SimpleQPacman(Agent):
         Reward currently equal to the change in score between this state and the next.
         """
         nextState = state.generateSuccessor(0, action)
+        # print nextState.getScore() - state.getScore()
         return nextState.getScore() - state.getScore()
 
     def isExploring(self):
@@ -170,6 +172,16 @@ class SimpleQPacman(Agent):
             return True
         else:
             return False
+
+    def lose(self):
+        """
+        A thing to do if it loses
+        """
+        print "I lost :("
+
+    def win(self):
+        print "I won :)"
+
 
 ##########################################################################
 class SimpleExplorationPacman(Agent):
@@ -204,9 +216,9 @@ class SimpleExplorationPacman(Agent):
             directionReward = rewards[direction]
         else:
             direction, directionReward = max(rewards.iteritems(), key=operator.itemgetter(1))  # this currently biases toward last option, probably East
-        
+
         self.updateQ(state, self.Q.index(directionReward), set(rewards.values()))
-        
+
         return direction
 
     def getReward(self, state, action):
@@ -241,7 +253,6 @@ class SimpleExplorationPacman(Agent):
         """
         self.Q[newState] = self.R[newState] + self.gamma * max(filter(lambda x: x in legalActions, self.Q))
         print "updated Q: ", self.Q
-
 
     def goRandomDirection(self):
         """
