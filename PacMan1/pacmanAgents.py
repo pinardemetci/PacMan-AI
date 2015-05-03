@@ -165,22 +165,20 @@ class SimpleQPacman(Agent):
         """
         A thing to do if it loses
         """
-        print "I lost :("
         expectedReward = state.data.scoreChange
-
         currentQ = self.getApproximateQValue(state)
-        print currentQ
-        for f in self.features:
-            print f
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward - currentQ) * f.value
-        print self.getApproximateQValue(state)
-        for f in self.features:
-            print f
         pickle.dump(self.features, open('features.p', 'wb'))
 
     def win(self):
         print "I won :)"
+        expectedReward = state.data.scoreChange
+        currentQ = self.getApproximateQValue(state)
+        for f in self.features:
+            f.weight = f.weight + self.learningRate * (expectedReward - currentQ) * f.value
+        pickle.dump(self.features, open('features.p', 'wb'))
+
 
 
 ##########################################################################
