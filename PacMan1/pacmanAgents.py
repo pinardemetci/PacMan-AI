@@ -34,20 +34,20 @@ class SimpleQPacman(Agent):
     Pacman Agent using simple Q-learning algorithm for a continuous state space.
     """
 
-    def __init__(self, fromPickle=False):
-
+    def __init__(self, fromPickle=True):
         if fromPickle:
             fs = pickle.load(open('features.p', 'rb'))
             print fs
             with open('features.p', 'rb') as f:
-                weights = pickle.load(f)
-                print 'WEIGHTS', weights
-                self.features = [NearestCapsuleFeature(weight=weights[0]), NearestNormalGhostFeature(weight=weights[1]), NearestScaredGhostFeature(weight=weights[2])]
+                self.features = pickle.load(f)
+                for f in self.features:
+                    print f
         else:
-            # self.features = [NearestCapsuleFeature(), NearestNormalGhostFeature(), NearestScaredGhostFeature()]
-            self.features = [NearestCapsuleFeature(), NearestNormalGhostFeature(), NearestScaredGhostFeature()]
+            self.features = [NearestCapsuleFeature(weight=-0.2), NearestNormalGhostFeature(weight=0.2),
+                NearestScaredGhostFeature(weight=-0.2), TotalFoodFeature(), NearestFoodFeature(weight=-0.2)]
 
-        self.learningRate = 0.001
+        self.tiles = {}
+        self.learningRate = 0.0001
         self.discountFactor = 0.7
         self.explorationRate = 0.05
 
@@ -58,8 +58,10 @@ class SimpleQPacman(Agent):
         Takes in a GameState object, calculates the optimal (or not)
         next action, returns that action.
         """
-
-        self.updateFeatures(state)
+        try:
+            self.updateFeatures(state)
+        except KeyError:
+            self.tiles = initializeTiles(state.data.layout)
 
         action = self.getMaxQAction(state)
 
@@ -81,7 +83,7 @@ class SimpleQPacman(Agent):
 
     def getApproximateQValue(self, state):
         # get a tuple (expected value, weight) for each feature
-        fs = [(f.extractFromState(state), f.weight) for f in self.features]
+        fs = [(f.extractFromState(state, self.tiles), f.weight) for f in self.features]
         # multiplies the current weight by an expected (or current) feature value
         return sum([f[0] * f[1] for f in fs])
 
@@ -128,20 +130,6 @@ class SimpleQPacman(Agent):
         # print "in updateWeights"
         nextState = state.generateSuccessor(0, action)
         expectedReward = self.getExpectedNextReward(state, action)
-        # print nextState.isWin(), nextState.isLose()
-
-
-        # dump the features
-        # if nextState.isWin() or nextState.isLose():
-        #     # print "win? ", nextState.isWin()
-        #     # print "lose? ", nextState.isLose()
-        #     # print 'PICKLING'
-        #     # print [f for f in self.features]
-        #     # pickle.dump([f.weight for f in self.features], open('features.p', 'wb'))
-        #     print "WIN LOSE"
-        # else:
-        #     print "continue"
-
         discountedFutureQ = self.discountFactor * self.getMaxQValue(nextState)
         currentQ = self.getQValue(state, action)
         for f in self.features:
@@ -152,7 +140,7 @@ class SimpleQPacman(Agent):
         Actually update the feature values instead of just looking at them.
         """
         for f in self.features:
-            f.updateValue(state)
+            f.updateValue(state, self.tiles)
 
     def getExpectedNextReward(self, state, action):
         """
@@ -173,11 +161,23 @@ class SimpleQPacman(Agent):
         else:
             return False
 
-    def lose(self):
+    def lose(self, state):
         """
         A thing to do if it loses
         """
         print "I lost :("
+        expectedReward = state.data.scoreChange
+
+        currentQ = self.getApproximateQValue(state)
+        print currentQ
+        for f in self.features:
+            print f
+        for f in self.features:
+            f.weight = f.weight + self.learningRate * (expectedReward - currentQ) * f.value
+        print self.getApproximateQValue(state)
+        for f in self.features:
+            print f
+        pickle.dump(self.features, open('features.p', 'wb'))
 
     def win(self):
         print "I won :)"
