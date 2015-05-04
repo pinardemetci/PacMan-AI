@@ -42,7 +42,6 @@ def initializeTiles(layout):
     for x in range(layout.width):
         for y in range(layout.height):
             costs[(x, y)] = Tile((x, y))
-    print "I initialized the tiles"
     return costs
 
 

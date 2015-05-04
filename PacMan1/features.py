@@ -1,6 +1,6 @@
 import random
 from util import manhattanDistance
-from util2 import *
+from util2 import Astar
 
 
 class Feature(object):
@@ -108,3 +108,11 @@ class NearestFoodFeature(Feature):
             return min(foodDistances)
         else:
             return 0
+
+
+class ScoreFeature(Feature):
+    """
+    game score
+    """
+    def extractFromState(self, state, costs):
+        return state.getScore()*0.01
