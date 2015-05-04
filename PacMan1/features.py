@@ -121,11 +121,14 @@ class NearestFoodFeature(Feature):
     """
 
     def extractFromState(self, state, costs):
+        """
+        Uses manhattanDistance instead of A-star to speed up the process.
+        """
         pos = state.getPacmanPosition()
         #if food exists:
         if state.getNumFood() > 0:
             #return the manhattanDistance to the nearest food
-            foodDistances = [Astar(state, pos, f, state.data.layout, costs) for f in state.getFood().asList()]
+            foodDistances = [manhattanDistance(pos, f) for f in state.getFood().asList()]
             return min(foodDistances)
         #if all food is consumed
         else:
