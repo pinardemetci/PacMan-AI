@@ -52,7 +52,7 @@ class NearestCapsuleFeature(Feature):
 
         # if there are capsules, return the minimum distance to a capsule
         if len(capsules) > 0:
-            caps_dists = [Astar(state, pos, c.getPosition(), state.data.layout, costs) for c in capsules]
+            caps_dists = [Astar(state, pos, c, state.data.layout, costs) for c in capsules]
             return min(caps_dists)
         # otherwise, return the largest distance possible in the layout so it thinks capsules are just far away.
         else:
