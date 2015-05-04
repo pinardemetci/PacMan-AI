@@ -1,6 +1,6 @@
 import random
 from util import manhattanDistance
-from util2 import *
+from util2 import * #imports A-star algorithm
 
 
 class Feature(object):
@@ -62,18 +62,23 @@ class NearestCapsuleFeature(Feature):
 
 class NearestNormalGhostFeature(Feature):
     """
-    Distance to the nearest non-scared ghost.
+    Distance to the nearest non-scared (normal) ghost.
+    Uses A-star
     """
 
     def extractFromState(self, state, costs):
         pos = state.getPacmanPosition()
-        ghosts = state.getGhostStates()
-        normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts)
-
+        ghosts = state.getGhostStates() #states of all the ghosts
+        normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts) #filters the ones that are not in scared-time
+        
+        #if ghosts exist:
         if len(normal_ghosts) > 0:
+            #return A-star to the nearest one
             normal_ghost_dists = [Astar(state, pos, n.getPosition(), state.data.layout, costs) for n in normal_ghosts]
             return min(normal_ghost_dists)
+            #if there are no ghosts:
         else:
+            #return the largest distance possible
             return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
 
 
@@ -96,23 +101,31 @@ class NearestScaredGhostFeature(Feature):
 
 class TotalFoodFeature(Feature):
     """
-    Total number of food remaining on the board
+    Feature Total number of food remaining on the board.
+    This feature exists so that PacMan will care about eating all the food.
     """
 
     def extractFromState(self, state, costs):
+        """
+        Returns the total number of food.
+        """
         return state.getNumFood()
 
 
 class NearestFoodFeature(Feature):
     """
     Distance to nearest food
+    Inherits from Feature
     """
 
     def extractFromState(self, state, costs):
         pos = state.getPacmanPosition()
-
+        #if food exists:
         if state.getNumFood() > 0:
+            #return the manhattanDistance to the nearest food
             foodDistances = [Astar(state, pos, f, state.data.layout, costs) for f in state.getFood().asList()]
             return min(foodDistances)
+        #if all food is consumed
         else:
+            #it actually means game is won, return 0.
             return 0
