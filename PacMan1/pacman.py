@@ -45,7 +45,6 @@ from game import Directions
 from game import Actions
 from util import nearestPoint
 from util import manhattanDistance
-# from util2 import initializeTiles
 import util, layout
 import sys, types, time, random, os
 
@@ -291,10 +290,7 @@ class ClassicGameRules:
 
     def win( self, state, game ):
         if not self.quiet: print "Pacman emerges victorious! Score: %d" % state.data.score
-        try:
-            game.agents[0].win()
-        except:
-            pass
+        game.agents[0].win(state)
         game.gameOver = True
 
     def lose( self, state, game ):
