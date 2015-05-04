@@ -10,18 +10,21 @@ class Feature(object):
         Follwing the same pattern as Agent; the index is for the
         Agent object to know which feature it is in the features list.
         """
-        self.value = value
-        self.weight = weight
+        # Value will be used to calculate Q values.
+        self.value = value  
+        #Each feature has a weight associated with it which will be updated to learn which feature to prioritize.
+        self.weight = weight 
 
     def __str__(self):
-        if self.value is None:
-            raise RuntimeError("whhhhaaaat")
+        #Tracking the values and weights of features after each update makes it easier to see how PacMan is learning 
         return "%s | value: %f | weight: %f" % (self.__class__.__name__, self.value, self.weight)
 
     def extractFromState(self, state, costs = None):
         """
         Map the state onto the feature space (i.e. a real number).
         Gets the value, doesn't update it.
+        This will be implemented for each feature. 
+        If forgot to implement, raises and error. 
         """
         raise NotImplementedError
 
@@ -36,21 +39,25 @@ class Feature(object):
 class NearestCapsuleFeature(Feature):
     """
     Distance to the nearest capsule.
+    Inherits from Feature class, like every other feature.
+    Uses A-star to calculate the distance
     """
 
     def extractFromState(self, state, costs):
-        pos = state.getPacmanPosition()
-        capsules = state.getCapsules()
+        """
+        Implemented to generate the distance to the nearest capsule
+        """
+        pos = state.getPacmanPosition() #position of PacMan
+        capsules = state.getCapsules() #state of each capsule
 
         # if there are capsules, return the minimum distance to a capsule
         if len(capsules) > 0:
             # caps_dists = [Astar(state, pos, c, layout) for c in capsules]
             caps_dists = [manhattanDistance(pos, c) for c in capsules]
             return min(caps_dists)
-        # otherwise, return a distance slightly larger than any distance for an extant thing
+        # otherwise, return the largest distance possible in the layout so it thinks capsules are just far away.
         else:
-            # return Astar(state, pos, (1, 1), state.data.layout)
-            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
+            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height)) #manhattanDistance between 2 corners in the layout.
 
 
 class NearestNormalGhostFeature(Feature):
