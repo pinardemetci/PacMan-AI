@@ -6,8 +6,9 @@ from util2 import *
 class Feature(object):
     def __init__(self, value=random.random(), weight=random.random()):
         """
+        Main class for all features. Each feature will inherit from this class.
         Follwing the same pattern as Agent; the index is for the
-        Agent object to know which one it is in the list.
+        Agent object to know which feature it is in the features list.
         """
         self.value = value
         self.weight = weight
