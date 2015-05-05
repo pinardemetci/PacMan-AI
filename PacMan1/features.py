@@ -10,14 +10,19 @@ class Feature(object):
         Main class for all features. Each feature will inherit from this class.
         Follwing the same pattern as Agent; the index is for the
         Agent object to know which feature it is in the features list.
+
+        Value: attribute to calculate Q-values
+        weight: each feature has a weight associated with it, which will be updated for agent to learn
+            which feature to prioritize
         """
-        # Value will be used to calculate Q values.
         self.value = value  
-        #Each feature has a weight associated with it which will be updated to learn which feature to prioritize.
         self.weight = weight 
 
     def __str__(self):
-        #Tracking the values and weights of features after each update makes it easier to see how PacMan is learning 
+        """
+        Allows the tracking the values and weights of features after each update 
+        makes it easier to see how PacMan is learning 
+        """
         return "%s | value: %f | weight: %f" % (self.__class__.__name__, self.value, self.weight)
 
     def extractFromState(self, state, costs = None):
@@ -26,15 +31,20 @@ class Feature(object):
         Gets the value, doesn't update it.
         This will be implemented for each feature. 
         If forgot to implement, raises and error. 
+
+        state: GameState object, 
+        costs: tile objects of game layout - only necessary for some features
         """
         raise NotImplementedError
 
     def updateValue(self, state, costs):
         """
         Updates the value based on the state.
+
+        state: GameState object
+        costs: tile objects of game layout
         """
         self.value = self.extractFromState(state, costs)
-        print self
 
 
 class NearestCapsuleFeature(Feature):
@@ -47,6 +57,9 @@ class NearestCapsuleFeature(Feature):
     def extractFromState(self, state, costs):
         """
         Implemented to generate the distance to the nearest capsule
+
+        state: GameState object
+        costs: tile object of game layout
         """
         pos = state.getPacmanPosition() #position of PacMan
         capsules = state.getCapsules() #state of each capsule
@@ -63,10 +76,16 @@ class NearestCapsuleFeature(Feature):
 class NearestNormalGhostFeature(Feature):
     """
     Distance to the nearest non-scared (normal) ghost.
-    Uses A-star
+    Implements Astar search algorithm
     """
 
     def extractFromState(self, state, costs):
+        """
+        determine distance between pacman and a normal ghost
+
+        state: GameState object
+        costs: tile object of game layout
+        """
         pos = state.getPacmanPosition()
         ghosts = state.getGhostStates() #states of all the ghosts
         normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts) #filters the ones that are not in scared-time
@@ -85,9 +104,16 @@ class NearestNormalGhostFeature(Feature):
 class NearestScaredGhostFeature(Feature):
     """
     Distance to the nearest scared ghost after PacMan eats a capsule.
+    Implements Astar search algorithm
     """
 
     def extractFromState(self, state, costs):
+        """
+        determine distance between pacman and a scared ghost
+
+        state: GameState object
+        costs: tile object of game layout
+        """
         pos = state.getPacmanPosition()
         ghosts = state.getGhostStates() #state of all the ghosts.
         scared_ghosts = filter(lambda g: g.scaredTimer > 0, ghosts) #filters the ones that are in scared time.
@@ -111,6 +137,9 @@ class TotalFoodFeature(Feature):
     def extractFromState(self, state, costs):
         """
         Returns the total number of food.
+
+        state: GameState object
+        costs: tile object of game layout - not used here
         """
         return state.getNumFood()
 
@@ -124,6 +153,9 @@ class NearestFoodFeature(Feature):
     def extractFromState(self, state, costs):
         """
         Uses manhattanDistance instead of A-star to speed up the process.
+
+        state: GameState object
+        costs: tile object of game layout - not used here
         """
         pos = state.getPacmanPosition()
         #if food exists:
@@ -142,4 +174,10 @@ class ScoreFeature(Feature):
     game score
     """
     def extractFromState(self, state, costs):
-        return state.getScore()*0.01
+        """
+        Calculate the game score
+
+        state: GameState object
+        costs: tile object of game layout - not used here
+        """
+        return state.getScore()*0.01 #multiply constant to manage weight values from becoming exceedingly large

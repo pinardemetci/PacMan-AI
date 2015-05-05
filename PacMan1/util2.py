@@ -45,6 +45,7 @@ def initializeTiles(layout):
     return costs
 
 
+"""Probably do not need this any more"""
 def DepthFirstSearch(state, start, costs, closed_list=[]):
     """
     Depth-first search algorithm to find close food pellets faster than running
@@ -75,7 +76,16 @@ def DepthFirstSearch(state, start, costs, closed_list=[]):
 
 
 def Astar(state, start, goal, layout, costs):
-    """Astar function that runs the show"""
+    """Astar function that runs the show
+    Determines the distance between a position and a goal with obstacles, such as walls present
+
+    start: initial position of search (tuple)
+    goal: end position of search (tuple)
+    layout: Layout object for game
+    costs: dictionary of tile objects that can be accessed with coordinate keys
+    returns: distance between start and goal, if goal exists
+        manhattanDistance of the layout board, if goal does not exist
+    """
     open_list = []  # Set of nodes already evaluated
     costs[start].g_cost = 0
     costs[start].h_cost = get_h_cost(start, goal)
@@ -86,7 +96,6 @@ def Astar(state, start, goal, layout, costs):
         tile = get_lowest_cost_open_coord(open_list)
         open_list.remove(tile)
         open_coords, tile_cost = get_open_adj_coords(state, tile.coordinates, layout)
-        # print open_coords, tile_cost
         for i, coord in enumerate(open_coords):
             if coord == goal:
                 costs[coord].g_cost = tile.g_cost + tile_cost[i]
@@ -100,7 +109,6 @@ def Astar(state, start, goal, layout, costs):
                 costs[coord].g_cost = tile.g_cost + tile_cost[i]
                 costs[coord].h_cost = get_h_cost(coord, goal)
                 costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
-                # return 300
             else:
                 if costs[coord].f_cost > costs[coord].g_cost + costs[coord].h_cost:
                     costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
@@ -108,13 +116,20 @@ def Astar(state, start, goal, layout, costs):
 
 
 def get_h_cost(coord_a, coord_b):
-    """Returns the h score, the manhattan distance between coord_a and the cood_b"""
+    """
+    Calculate h_cost of given position and goal
+
+    coord_a: starting coordinate
+    coord_b: goal coordinate
+    Returns: the h score, the manhattan distance between coord_a and the cood_b
+    """
     return abs(coord_a[0] - coord_b[0]) + abs(coord_a[1] - coord_b[1])
 
 
 def get_open_adj_coords(state, coords, layout):
     """
     Finds the coordinates of the up to four open adjacent positions to coords.
+
     coords: the center coordinate pair
     layout: the Layout object for the game
     returns: (list of open adjacent coordinates, ones(same length))
@@ -130,14 +145,15 @@ def get_open_adj_coords(state, coords, layout):
         adj_coords.append((coords[0], coords[1] - 1))
     else:
         pass
-
     costs = [1] * len(adj_coords)
     return adj_coords, costs
 
 
+"""Probably do not need this"""
 def get_open_adj_coords_DFS(state, coords, layout):
     """
     Get open adjacent coordinates for the DepthFirstSearch function.
+
     coords: the center coordinate pair
     layout: the Layout object for the game
     returns: list of open adjacent coordinate pairs
@@ -159,16 +175,8 @@ def get_open_adj_coords_DFS(state, coords, layout):
 def get_lowest_cost_open_coord(open_list):
     """
     Find the tile with the lowest cost.
+
     open_list: list of Tile objects to sort
     returns: open_list sorted by f_cost
     """
     return sorted(open_list, key = lambda t: t.f_cost)[0]
-
-
-def maxManhattanDistance(layout):
-    """
-    Find the maximum Manhattan distance for this layout.
-    layout: the Layout object for the game
-    returns: the Manhattan distance between diagonal corners
-    """
-    return manhattanDistance((0, 0), (layout.width, layout.height))

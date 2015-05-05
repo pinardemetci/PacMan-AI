@@ -14,14 +14,19 @@ from util2 import initializeTiles
 
 class SimpleQPacman(Agent):
     """
-    Pacman Agent using simple Q-learning algorithm for a continuous state space.
+    Represents the pacman agent that implements the continuous state Q-learning 
+    algorithm to learn from it's previous exerience. The agent inherits the 
+    attritbutes and methods from the Berkeley Agent Class.
+
+    tiles: dictionary to hold all of the tiles on the game layout
+    learningRate: how much you adjust the weight relative to the Q-value
+    discountFactor: Weight to balance instant reward with future long term awards
+    exploraitonRate: probability that pacman will explore, instead of using optimal action
     """
 
     def __init__(self, fromPickle=True):
         """
         Pickling the feature weights for agent to learn from its actions in previous GameState
-
-        Inherits from the Berkeley Agent class
         """
         if fromPickle:
             with open('features.p', 'rb') as f:
@@ -34,51 +39,61 @@ class SimpleQPacman(Agent):
                 NearestFoodFeature(weight=-0.2)]
                 # ScoreFeature()]
 
-        self.tiles = {} #Dictionary to store game tiles, depends on the layout
-        self.learningRate = 0.0001 #how much you adjust the weight relative to the Q-value
-        self.discountFactor = 0.3 #Weight to balance instant reward with future long term awards
-        self.explorationRate = 0.05 #probability that pacman will explore
+        self.tiles = {}
+        self.learningRate = 0.0001 
+        self.discountFactor = 0.3 
+        self.explorationRate = 0.05 
 
         super(Agent, self).__init__()
 
+
     def getAction(self, state):
         """
-        Initialize the game layout tiles when pacman is in start configuration
+        getAction runs pacman agent's show by determing what action the 
+        agent will take, based on it's current state and Q-learning values
 
-        input: GameState object
-        output: random action, if exploring, and optimal action, if not exploring
+        Initialize the game layout tiles when pacman is in start configuration
+        Updates the pacman's feature values
+        Determines the agent's optimal action, given its specific configuration
+        based on the maximum Q value or implements a random action
+        Updates feature weights based on it's final action
+
+        state: GameState object
+        returns: random action, if exploring, and optimal action, if not exploring
         """
         if state.data.agentStates[0].configuration == state.data.agentStates[0].start:
             self.tiles = initializeTiles(state.data.layout)
         else:
             self.updateFeatures(state)
-        action = self.getMaxQAction(state)
         if self.isExploring():
             legalActions = state.getLegalActions()
             final_action = random.choice(legalActions)
         else:
+            action = self.getMaxQAction(state)
             final_action = action
         self.updateWeights(state, final_action)
         return final_action
 
     def getApproximateQValue(self, state):
         """
-        multiply the current weight of each feature by an expected feature value
-        to approximate Q-value
+        Calculate the linear combination of the feature values and their 
+        respective weights to approximate Q-value. 
 
-        input: GameState object
-        output: Approximate Q value based on the feature weights, #
+        state: GameState object
+        return: Approximate Q value based on the feature weights, #
         """
         fs = [(f.extractFromState(state, self.tiles), f.weight) for f in self.features]
         return sum([f[0] * f[1] for f in fs])
+
 
     def getQValue(self, state, action):
         """
         Calculate the Q-Value based on algorithm
         Q' = (1-learningRate) * (Q + learningRate) * (R + R')
 
-        input: stateObject, action as a direction 
-        output: Q-value, number
+        state: GameState object
+        action: direction (string)
+        return: Q-value (float)
         """
         currentQ = self.getApproximateQValue(state)
         nextState = state.generateSuccessor(0, action)
@@ -87,12 +102,14 @@ class SimpleQPacman(Agent):
         q = (1 - self.learningRate) * currentQ + self.learningRate * (currentReward + futureReward)
         return q
 
+
     def getMaxQ(self, state):
         """
-        Calculate the Q-values of all the legal actions and determine max value
+        Calculate the Q-values of all the legal actions and determine max Q-value
+        to determine the optimal action
 
-        input: stateObject
-        output: tuple of maximum Q-value with a corresponding action
+        state: GameState object
+        return: action, maximum Q-value (tuple: string, float)
         """
         if state.isWin() or state.isLose():
             return (Directions.STOP, self.getApproximateQValue(state))
@@ -103,27 +120,42 @@ class SimpleQPacman(Agent):
                 actionValuePairs.append((a, self.getQValue(state, a)))
             return max(actionValuePairs, key=operator.itemgetter(1))
 
+
     def getMaxQValue(self, state):
         """
-        input: stateObject
-        output: maximum Q-Value
+        return max Q-value of given agent state
+
+        state: GameState object
+        return: maximum Q-Value (float)
         """
         return self.getMaxQ(state)[1]
 
+
     def getMaxQAction(self, state):
         """
-        input: stateObject
-        output: action with the maximum Q-value
+        return action with max Q-value of given agent state
+
+        state: GameState object
+        return: action with the maximum Q-value (string)
         """
         return self.getMaxQ(state)[0]
 
+
     def updateWeights(self, state, action):
         """
-        Change weights of each feature based on the change in that
+        Essential for pacman learning what features are most important for earning rewards
+        negative weight values - pacman attracted toward feature to increase reward
+            ex. agent going towards food
+        positive weight values - pacman repelled by feature to increase reward
+            ex. agent going away from ghosts
+
+        update weight values of each feature based on the change in that
         feature from the last state.
         w_t+1 = w_t + alpha(r_t+1 + gamma* max(a)Q(s', a) - Q(s, a))*phi_t
 
-        input: stateObject, action as a direction
+        state: GameState object, 
+        action: direction (string)
+        return: None
         """
         nextState = state.generateSuccessor(0, action)
         expectedReward = self.getExpectedNextReward(state, action)
@@ -132,29 +164,37 @@ class SimpleQPacman(Agent):
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward + discountedFutureQ - currentQ) * f.value
 
+
     def updateFeatures(self, state):
         """
         Update the feature values
 
-        inpute:stateobject
+        state: GameState object
+        returns: None
         """
         for f in self.features:
             f.updateValue(state, self.tiles)
 
+
     def getExpectedNextReward(self, state, action):
         """
-        Calculate the expected reward of a given state and action
+        More reward is given when pacman agent increases the score with it's action
+        Calculate the expected reward of a given state and action based on score change
         r_t+1 = R(s_t, a_t, s_t+1)
 
-        input: stateObject, action as a direction
-        output: change in score
+        state: GameState object
+        Action: direction (string)
+        return: change in score based on action
         """
         nextState = state.generateSuccessor(0, action)
         return nextState.getScore() - state.getScore()
 
+
     def isExploring(self):
         """
-        Uses explorationRate to decide if we explore or not.
+        Uses explorationRate to decide if pacman agent explores or uses Q-learning
+
+        returns: True or False
         """
         r = random.random()
         if r < self.explorationRate:
@@ -162,30 +202,34 @@ class SimpleQPacman(Agent):
         else:
             return False
 
+
     def lose(self, state):
         """
-        Update the feature weights and store when lose
+        Stores feature weight values when game ends so pacman agent can learn from experience
+        over multiple games
+        Update the feature weights and store by pickling when pacman agent loses
 
-        input: stateObject
+        input: GameState object
         output: feature weights in pickle file
         """
         expectedReward = state.data.scoreChange
         currentQ = self.getApproximateQValue(state)
-        print "Pickling"
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward - currentQ) * f.value
         pickle.dump(self.features, open('features.p', 'wb'))
 
+
     def win(self, state):
         """
-        Update the feature weights and store when won
+        Stores feature weight values when game ends so pacman agent can learn from experience
+        over multiple games
+        Update the feature weights and store by pickling when pacman agent wins
 
-        input: stateObject
+        input: GameState object
         output: feature weights in pickle file
         """
         expectedReward = state.data.scoreChange
         currentQ = self.getApproximateQValue(state)
-        print "Pinkling"
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward - currentQ) * f.value
         pickle.dump(self.features, open('features.p', 'wb'))
