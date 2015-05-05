@@ -9,3 +9,4 @@ Hello!
 Welcome to Q-learning?
 
 Just checking Jekyll
+![This PacMan image](/assets/pacman.png)

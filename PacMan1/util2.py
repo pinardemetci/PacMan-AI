@@ -71,7 +71,8 @@ def Astar(state, start, goal, layout, costs):
             else:
                 if costs[coord].f_cost > costs[coord].g_cost + costs[coord].h_cost:
                     costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
-                return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
+                return 0
+                #return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
     #print open_list
 
 def get_h_cost(coord_a, coord_b):

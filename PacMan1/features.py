@@ -1,34 +1,32 @@
 import random
 from util import manhattanDistance
 from util2 import * #imports A-star algorithm
- 
+
 
 class Feature(object):
     def __init__(self, value=random.random(), weight=random.random()):
         """
-        Main class for the features that we use for Q iteration with value approximation. 
-        Following the same pattern as Agent; the index is for the Agent object 
-        to know which feature it is in the features list.
+        Main class for all features. Each feature will inherit from this class.
+        Follwing the same pattern as Agent; the index is for the
+        Agent object to know which feature it is in the features list.
         """
-        # Value of the feature will be used to compute Q values and weight updates. Starts with random until updated for the first time
-        self.value = value   
-        # Weight of the feature. This is also used in Q values. It determines which features are prioritized and affects the agent's moves.
-        self.weight = weight  
+        # Value will be used to calculate Q values.
+        self.value = value  
+        #Each feature has a weight associated with it which will be updated to learn which feature to prioritize.
+        self.weight = weight 
 
     def __str__(self):
-        """
-        Returns the name, value and weight of the feature so that it's easy to track updates in the command line.
-        """
+        #Tracking the values and weights of features after each update makes it easier to see how PacMan is learning 
         return "%s | value: %f | weight: %f" % (self.__class__.__name__, self.value, self.weight)
 
     def extractFromState(self, state, costs = None):
         """
         Map the state onto the feature space (i.e. a real number).
         Gets the value, doesn't update it.
-        It will be implemented for each feature we create.
-        Raises an error in case we forget to implement.
+        This will be implemented for each feature. 
+        If forgot to implement, raises and error. 
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def updateValue(self, state, costs):
         """
@@ -40,104 +38,99 @@ class Feature(object):
 
 class NearestCapsuleFeature(Feature):
     """
-    Calculates the distance to the nearest capsule.
-    Inherits from the main Feature class, like every other feature.
+    Distance to the nearest capsule.
+    Inherits from Feature class, like every other feature.
+    Uses A-star to calculate the distance
     """
 
     def extractFromState(self, state, costs):
         """
-        Uses A-star algorithm to calculate the distance to the nearest capsule. 
-        A-star algorithm we implemented is in util2.py file.
+        Implemented to generate the distance to the nearest capsule
         """
-        pos = state.getPacmanPosition() #position of the PacMan
-        capsules = state.getCapsules() # position of all capsules
+        pos = state.getPacmanPosition() #position of PacMan
+        capsules = state.getCapsules() #state of each capsule
 
-        # if there are capsules, return the minimum distance to a capsule.
+        # if there are capsules, return the minimum distance to a capsule
         if len(capsules) > 0:
-            # caps_dists = [Astar(state, pos, c, layout) for c in capsules]
-            caps_dists = [manhattanDistance(pos, c) for c in capsules]
+            caps_dists = [Astar(state, pos, c, state.data.layout, costs) for c in capsules]
             return min(caps_dists)
-        # otherwise, returns the largest distance possible in the layout
+        # otherwise, return the largest distance possible in the layout so it thinks capsules are just far away.
         else:
-            return manhattanDistance((0,0), (state.data.layout.width, state.data.layout.height)) 
+            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height)) #manhattanDistance between 2 corners in the layout.
+
 
 class NearestNormalGhostFeature(Feature):
     """
-    Feature for Ghosts in non-scared time. 
-    Inherits from the Feature class.
-    Gives the distance to the nearest non-scared ghost.
+    Distance to the nearest non-scared (normal) ghost.
+    Uses A-star
     """
 
     def extractFromState(self, state, costs):
-        """
-        Uses A-star algorithm to calculate the distance to the nearest non-scared ghost.
-        Otherwise, returns the largest manhattanDistance
-        """
-        pos = state.getPacmanPosition() #position of PacMan
-        ghosts = state.getGhostStates() #States of all the ghosts
-        normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts) #filters the non-scared ghosts only.
-
-        #If there are ghosts in the layout, return A-star to the nearest one
+        pos = state.getPacmanPosition()
+        ghosts = state.getGhostStates() #states of all the ghosts
+        normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts) #filters the ones that are not in scared-time
+        
+        #if ghosts exist:
         if len(normal_ghosts) > 0:
+            #return A-star to the nearest one
             normal_ghost_dists = [Astar(state, pos, n.getPosition(), state.data.layout, costs) for n in normal_ghosts]
             return min(normal_ghost_dists)
+            #if there are no ghosts:
         else:
-        #If not, returns the largest distance possible in the layout
-            return manhattanDistance((0,0), (state.data.layout.width, state.data.layout.height))
+            #return the largest distance possible
+            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
+
 
 class NearestScaredGhostFeature(Feature):
     """
-    Feature for the Scared Ghosts for when PacMan eats the capsule and scared time starts
-    Distance to the nearest scared ghost.
+    Distance to the nearest scared ghost after PacMan eats a capsule.
     """
 
     def extractFromState(self, state, costs):
-        """
-        Uses A-star for the nearest scared ghost. 
-        If non exists, returns the largest distance possible by using manhattanDistance
-        """
-        pos = state.getPacmanPosition() #Position of the PacMan
-        ghosts = state.getGhostStates() #States of the all the ghosts in the layout
-        scared_ghosts = filter(lambda g: g.scaredTimer > 0, ghosts) #Filters the scared ghosts only.
+        pos = state.getPacmanPosition()
+        ghosts = state.getGhostStates() #state of all the ghosts.
+        scared_ghosts = filter(lambda g: g.scaredTimer > 0, ghosts) #filters the ones that are in scared time.
 
-        #If scared ghosts exist:
+        #After PacMan eats a capsule, scared time starts.
+        #When there are scared ghosts, return A-star distance to the nearest one
         if len(scared_ghosts) > 0:
-            #Return A-star value
             scared_ghost_dists = [Astar(state, pos, s.getPosition(), state.data.layout, costs) for s in scared_ghosts]
             return min(scared_ghost_dists)
-        #If there are non scared ghosts:
+        #If none exists, return the largest distance possible, making PacMan think they are just really far. 
         else:
-            # returns the largest distance possible in the layout
-           return manhattanDistance((0,0), (state.data.layout.width, state.data.layout.height))
+            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
 
 
 class TotalFoodFeature(Feature):
     """
-    Feature for Total Number of Food. Inherits from the main Feature class. 
+    Feature Total number of food remaining on the board.
+    This feature exists so that PacMan will care about eating all the food.
     """
 
     def extractFromState(self, state, costs):
         """
-        Returns the total number of food remaining on the board
+        Returns the total number of food.
         """
         return state.getNumFood()
 
 
 class NearestFoodFeature(Feature):
     """
-    PacMan's distance to nearest food. Inherits from 'Feature'
-    Uses manhattanDistance 
+    Distance to nearest food
+    Inherits from Feature
     """
 
     def extractFromState(self, state, costs):
         """
-        Uses manhattanDistance instead of A-star to speed the process up.
+        Uses manhattanDistance instead of A-star to speed up the process.
         """
-        pos = state.getPacmanPosition() #position of the PacMan
-        food = state.getFood() #State of the food
-
-        if state.getNumFood() > 0: 
-            foodDistances = [manhattanDistance(pos, f) for f in food] #manhattanDistance to each food
-            return min(foodDistances) #return the nearest one
-        else: #if all food is eaten, return the largest distance possible to act like food is just really far away.
-            return manhattanDistance((0,0), (state.data.layout.width, state.data.layout.height)) 
+        pos = state.getPacmanPosition()
+        #if food exists:
+        if state.getNumFood() > 0:
+            #return the manhattanDistance to the nearest food
+            foodDistances = [manhattanDistance(pos, f) for f in state.getFood().asList()]
+            return min(foodDistances)
+        #if all food is consumed
+        else:
+            #it actually means game is won, return 0.
+            return 0
