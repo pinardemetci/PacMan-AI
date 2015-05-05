@@ -87,12 +87,10 @@ class NearestNormalGhostFeature(Feature):
         costs: tile object of game layout
         """
         pos = state.getPacmanPosition()
-        ghosts = state.getGhostStates() #states of all the ghosts
-        normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts) #filters the ones that are not in scared-time
-        
-        #if ghosts exist:
+        ghosts = state.getGhostStates() 
+        normal_ghosts = filter(lambda g: g.scaredTimer == 0, ghosts) 
+
         if len(normal_ghosts) > 0:
-            #return A-star to the nearest one
             normal_ghost_dists = [Astar(state, pos, n.getPosition(), state.data.layout, costs) for n in normal_ghosts]
             return min(normal_ghost_dists)
             #if there are no ghosts:
