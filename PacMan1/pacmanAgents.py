@@ -9,6 +9,7 @@ import pickle
 
 from game import Agent, Directions
 from features import *
+from util2 import initializeTiles
 
 
 class SimpleQPacman(Agent):
@@ -23,23 +24,22 @@ class SimpleQPacman(Agent):
         Inherits from the Berkeley Agent class
         """
         if fromPickle:
-            fs = pickle.load(open('features.p', 'rb'))
-            print fs
             with open('features.p', 'rb') as f:
                 self.features = pickle.load(f)
-                for f in self.features:
-                    print f
         else:
-            self.features = [NearestCapsuleFeature(weight=-0.2), NearestNormalGhostFeature(weight=0.2),
-                NearestScaredGhostFeature(weight=-0.2), TotalFoodFeature(), NearestFoodFeature(weight=-0.2)]
+            self.features = [NearestCapsuleFeature(weight=-0.2), 
+                NearestNormalGhostFeature(weight=0.2),
+                NearestScaredGhostFeature(weight=-0.2), 
+                # TotalFoodFeature(), 
+                NearestFoodFeature(weight=-0.2)]
+                # ScoreFeature()]
 
         self.tiles = {} #Dictionary to store game tiles, depends on the layout
         self.learningRate = 0.0001 #how much you adjust the weight relative to the Q-value
-        self.discountFactor = 0.7 #Weight to balance instant reward with future long term awards
+        self.discountFactor = 0.3 #Weight to balance instant reward with future long term awards
         self.explorationRate = 0.05 #probability that pacman will explore
 
         super(Agent, self).__init__()
-
 
     def getAction(self, state):
         """
@@ -50,6 +50,8 @@ class SimpleQPacman(Agent):
         """
         if state.data.agentStates[0].configuration == state.data.agentStates[0].start:
             self.tiles = initializeTiles(state.data.layout)
+        else:
+            self.updateFeatures(state)
         action = self.getMaxQAction(state)
         if self.isExploring():
             legalActions = state.getLegalActions()
@@ -58,7 +60,6 @@ class SimpleQPacman(Agent):
             final_action = action
         self.updateWeights(state, final_action)
         return final_action
-
 
     def getApproximateQValue(self, state):
         """
@@ -70,7 +71,6 @@ class SimpleQPacman(Agent):
         """
         fs = [(f.extractFromState(state, self.tiles), f.weight) for f in self.features]
         return sum([f[0] * f[1] for f in fs])
-
 
     def getQValue(self, state, action):
         """
@@ -86,7 +86,6 @@ class SimpleQPacman(Agent):
         futureReward = self.discountFactor * self.getApproximateQValue(nextState)
         q = (1 - self.learningRate) * currentQ + self.learningRate * (currentReward + futureReward)
         return q
-
 
     def getMaxQ(self, state):
         """
@@ -104,7 +103,6 @@ class SimpleQPacman(Agent):
                 actionValuePairs.append((a, self.getQValue(state, a)))
             return max(actionValuePairs, key=operator.itemgetter(1))
 
-
     def getMaxQValue(self, state):
         """
         input: stateObject
@@ -112,14 +110,12 @@ class SimpleQPacman(Agent):
         """
         return self.getMaxQ(state)[1]
 
-
     def getMaxQAction(self, state):
         """
         input: stateObject
         output: action with the maximum Q-value
         """
         return self.getMaxQ(state)[0]
-
 
     def updateWeights(self, state, action):
         """
@@ -136,7 +132,6 @@ class SimpleQPacman(Agent):
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward + discountedFutureQ - currentQ) * f.value
 
-
     def updateFeatures(self, state):
         """
         Update the feature values
@@ -145,7 +140,6 @@ class SimpleQPacman(Agent):
         """
         for f in self.features:
             f.updateValue(state, self.tiles)
-
 
     def getExpectedNextReward(self, state, action):
         """
@@ -158,7 +152,6 @@ class SimpleQPacman(Agent):
         nextState = state.generateSuccessor(0, action)
         return nextState.getScore() - state.getScore()
 
-
     def isExploring(self):
         """
         Uses explorationRate to decide if we explore or not.
@@ -169,7 +162,6 @@ class SimpleQPacman(Agent):
         else:
             return False
 
-
     def lose(self, state):
         """
         Update the feature weights and store when lose
@@ -179,10 +171,10 @@ class SimpleQPacman(Agent):
         """
         expectedReward = state.data.scoreChange
         currentQ = self.getApproximateQValue(state)
+        print "Pickling"
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward - currentQ) * f.value
         pickle.dump(self.features, open('features.p', 'wb'))
-
 
     def win(self, state):
         """
@@ -193,6 +185,7 @@ class SimpleQPacman(Agent):
         """
         expectedReward = state.data.scoreChange
         currentQ = self.getApproximateQValue(state)
+        print "Pinkling"
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward - currentQ) * f.value
         pickle.dump(self.features, open('features.p', 'wb'))
