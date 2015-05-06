@@ -14,10 +14,11 @@ from util2 import initializeTiles
 
 class SimpleQPacman(Agent):
     """
-    Represents the pacman agent that implements the continuous state Q-learning 
-    algorithm to learn from it's previous exerience. The agent inherits the 
+    Represents the pacman agent that implements the continuous state Q-learning
+    algorithm to learn from it's previous exerience. The agent inherits the
     attritbutes and methods from the Berkeley Agent Class.
 
+    features: a list of Features the agent will use
     tiles: dictionary to hold all of the tiles on the game layout
     learningRate: how much you adjust the weight relative to the Q-value
     discountFactor: Weight to balance instant reward with future long term awards
@@ -32,12 +33,14 @@ class SimpleQPacman(Agent):
             with open('features.p', 'rb') as f:
                 self.features = pickle.load(f)
         else:
-            self.features = [NearestCapsuleFeature(weight=-0.2), 
+            self.features = [
+                NearestCapsuleFeature(weight=-0.2),
                 NearestNormalGhostFeature(weight=0.2),
-                NearestScaredGhostFeature(weight=-0.2), 
-                # TotalFoodFeature(), 
-                NearestFoodFeature(weight=-0.2)]
-                # ScoreFeature()]
+                NearestScaredGhostFeature(weight=-0.2),
+                # TotalFoodFeature(),
+                NearestFoodFeature(weight=-0.2),
+                # ScoreFeature()
+            ]
 
         self.tiles = {}
         self.learningRate = 0.0001 
@@ -45,7 +48,6 @@ class SimpleQPacman(Agent):
         self.explorationRate = 0.05 
 
         super(Agent, self).__init__()
-
 
     def getAction(self, state):
         """
@@ -85,7 +87,6 @@ class SimpleQPacman(Agent):
         fs = [(f.extractFromState(state, self.tiles), f.weight) for f in self.features]
         return sum([f[0] * f[1] for f in fs])
 
-
     def getQValue(self, state, action):
         """
         Calculate the Q-Value based on algorithm
@@ -101,7 +102,6 @@ class SimpleQPacman(Agent):
         futureReward = self.discountFactor * self.getApproximateQValue(nextState)
         q = (1 - self.learningRate) * currentQ + self.learningRate * (currentReward + futureReward)
         return q
-
 
     def getMaxQ(self, state):
         """
@@ -120,7 +120,6 @@ class SimpleQPacman(Agent):
                 actionValuePairs.append((a, self.getQValue(state, a)))
             return max(actionValuePairs, key=operator.itemgetter(1))
 
-
     def getMaxQValue(self, state):
         """
         return max Q-value of given agent state
@@ -130,7 +129,6 @@ class SimpleQPacman(Agent):
         """
         return self.getMaxQ(state)[1]
 
-
     def getMaxQAction(self, state):
         """
         return action with max Q-value of given agent state
@@ -139,7 +137,6 @@ class SimpleQPacman(Agent):
         return: action with the maximum Q-value (string)
         """
         return self.getMaxQ(state)[0]
-
 
     def updateWeights(self, state, action):
         """
@@ -153,7 +150,7 @@ class SimpleQPacman(Agent):
         feature from the last state.
         w_t+1 = w_t + alpha(r_t+1 + gamma* max(a)Q(s', a) - Q(s, a))*phi_t
 
-        state: GameState object, 
+        state: GameState object,
         action: direction (string)
         return: None
         """
@@ -164,7 +161,6 @@ class SimpleQPacman(Agent):
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward + discountedFutureQ - currentQ) * f.value
 
-
     def updateFeatures(self, state):
         """
         Update the feature values
@@ -174,7 +170,6 @@ class SimpleQPacman(Agent):
         """
         for f in self.features:
             f.updateValue(state, self.tiles)
-
 
     def getExpectedNextReward(self, state, action):
         """
@@ -189,7 +184,6 @@ class SimpleQPacman(Agent):
         nextState = state.generateSuccessor(0, action)
         return nextState.getScore() - state.getScore()
 
-
     def isExploring(self):
         """
         Uses explorationRate to decide if pacman agent explores or uses Q-learning
@@ -201,7 +195,6 @@ class SimpleQPacman(Agent):
             return True
         else:
             return False
-
 
     def lose(self, state):
         """
@@ -217,7 +210,6 @@ class SimpleQPacman(Agent):
         for f in self.features:
             f.weight = f.weight + self.learningRate * (expectedReward - currentQ) * f.value
         pickle.dump(self.features, open('features.p', 'wb'))
-
 
     def win(self, state):
         """
