@@ -1,5 +1,5 @@
 """
-@author: Kelly Brennan, Stephanie Norway and Pinar Demetci
+@authors: Kelly Brennan, Stephanie Norway and Pinar Demetci
 Our own utility functions and classes.
 """
 
