@@ -4,9 +4,6 @@ Our own utility functions and classes.
 """
 
 
-from util import manhattanDistance
-
-
 class Tile(object):
     """
     Represents a position on the board in terms of what it will cost Pacman to get there.
@@ -45,7 +42,6 @@ def initializeTiles(layout):
     return costs
 
 
-"""Probably do not need this any more"""
 def DepthFirstSearch(state, start, costs, closed_list=[]):
     """
     Depth-first search algorithm to find close food pellets with greater computational efficiency than running
@@ -54,13 +50,17 @@ def DepthFirstSearch(state, start, costs, closed_list=[]):
     First, finds a list of open adjacent coordinates. If food at coordinate, return distance from Pacman
         Otherwise, run function with new coordinate input
 
+    Failure mode: function doesn't work when pacman eats a food pellet. 
+    Next steps would be to address this.
+
     state: the GameState object
     start: (x, y) coordinates from which to start the search
     costs: {(x, y): Tile((x, y))}
     closed_list: list of coordinates no longer being considered
     returns: Astar distance to the closest food pellet
     """
-    closed_list.append(start)  # start position is off limits
+    if start not in closed_list:
+        closed_list.append(start)  # start position is off limits
     open_coords = get_open_adj_coords_DFS(state, start, state.data.layout)
     for coord in open_coords:
         if state.hasFood(*coord):
@@ -80,12 +80,12 @@ def Astar(state, start, goal, layout, costs):
     goal: end position of search (tuple)
     layout: Layout object for game
     costs: dictionary of tile objects that can be accessed with coordinate keys
-    returns: distance between start and goal, if goal exists
-        manhattanDistance of the layout board, if goal does not exist
+    returns: distance between start and goal
     """
+    goal_int = (int(goal[0]), int(goal[1])) #convert goal position from a float to an integer for algorithm not to enter an infinite loop
     open_list = []  # Set of nodes already evaluated
     costs[start].g_cost = 0
-    costs[start].h_cost = get_h_cost(start, goal)
+    costs[start].h_cost = get_h_cost(start, goal_int)
     costs[start].f_cost = costs[start].g_cost + costs[start].h_cost
     open_list.append(costs[start])
 
@@ -94,22 +94,20 @@ def Astar(state, start, goal, layout, costs):
         open_list.remove(tile)
         open_coords, tile_cost = get_open_adj_coords(state, tile.coordinates, layout)
         for i, coord in enumerate(open_coords):
-            if coord == goal:
+            if coord == goal_int:
                 costs[coord].g_cost = tile.g_cost + tile_cost[i]
-                costs[coord].h_cost = get_h_cost(coord, goal)
+                costs[coord].h_cost = get_h_cost(coord, goal_int)
                 costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
-
                 return costs[coord].f_cost
 
             elif costs[coord] not in open_list:
                 open_list.append(costs[coord])
                 costs[coord].g_cost = tile.g_cost + tile_cost[i]
-                costs[coord].h_cost = get_h_cost(coord, goal)
+                costs[coord].h_cost = get_h_cost(coord, goal_int)
                 costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
             else:
                 if costs[coord].f_cost > costs[coord].g_cost + costs[coord].h_cost:
                     costs[coord].f_cost = costs[coord].g_cost + costs[coord].h_cost
-                return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
 
 
 def get_h_cost(coord_a, coord_b):

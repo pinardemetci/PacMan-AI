@@ -43,9 +43,9 @@ class SimpleQPacman(Agent):
             ]
 
         self.tiles = {}
-        self.learningRate = 0.0001 
-        self.discountFactor = 0.3 
-        self.explorationRate = 0.05 
+        self.learningRate = 0.0001
+        self.discountFactor = 0.3
+        self.explorationRate = 0.05
 
         super(Agent, self).__init__()
 
@@ -78,8 +78,8 @@ class SimpleQPacman(Agent):
 
     def getApproximateQValue(self, state):
         """
-        Calculate the linear combination of the feature values and their 
-        respective weights to approximate Q-value. 
+        Calculate the linear combination of the feature values and their
+        respective weights to approximate Q-value.
 
         state: GameState object
         return: Approximate Q value based on the feature weights, #
@@ -170,6 +170,7 @@ class SimpleQPacman(Agent):
         """
         for f in self.features:
             f.updateValue(state, self.tiles)
+            print f
 
     def getExpectedNextReward(self, state, action):
         """

@@ -13,10 +13,10 @@ Rp5
 (dp6
 S'weight'
 p7
-F-0.7870017093754603
+F-2.217655299045105
 sS'value'
 p8
-I23
+I31
 sbag1
 (cfeatures
 NearestNormalGhostFeature
@@ -26,9 +26,9 @@ Ntp10
 Rp11
 (dp12
 g7
-F0.45365558261422145
+F3.0420578425263556
 sg8
-F1.0
+I2
 sbag1
 (cfeatures
 NearestScaredGhostFeature
@@ -38,9 +38,9 @@ Ntp14
 Rp15
 (dp16
 g7
-F-2.0671631707480236
+F-0.5082184221820732
 sg8
-I31
+I15
 sbag1
 (cfeatures
 NearestFoodFeature
@@ -50,7 +50,7 @@ Ntp18
 Rp19
 (dp20
 g7
-F-1.2578509331213772
+F-3.3349665802982047
 sg8
-I1
+I2
 sba.

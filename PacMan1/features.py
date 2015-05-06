@@ -67,8 +67,8 @@ class NearestCapsuleFeature(Feature):
         return: (float) if capsules present, return minimum distance to capsule
             otherwise return the manhattanDistance of the layout board, making pacman think they are far away 
         """
-        pos = state.getPacmanPosition()  
-        capsules = state.getCapsules()  
+        pos = state.getPacmanPosition()
+        capsules = state.getCapsules()
 
         if len(capsules) > 0:
             caps_dists = [Astar(state, pos, c, state.data.layout, costs) for c in capsules]
@@ -119,7 +119,7 @@ class NearestScaredGhostFeature(Feature):
             otherwise return the manhattanDistance of the layout board, making pacman think they are far away
         """
         pos = state.getPacmanPosition()
-        ghosts = state.getGhostStates()  
+        ghosts = state.getGhostStates()
         scared_ghosts = filter(lambda g: g.scaredTimer > 0, ghosts)  # filters the ones that are in scared time.
         # After PacMan eats a capsule, scared time starts.
         if len(scared_ghosts) > 0:
