@@ -3,6 +3,7 @@ SofDes Spring'15 final project by Kelly Brennan, Stephanie Northway, and Pinar D
 The project aims to use AI and machine learning strategies for pathfinding in PacMan. 
 
 **What is PacMan-AI?**
+
 It's a class project we took on to teach ourselves about AI, specifically reinforcement learning, and even more specifically Q-learning. It's a Pacman game that plays itself and learns from its experience. Each time it makes a move, it updates the weights associated with different features (like how far it is from a ghost or food pellet) based on the expected rewards (both immediate and cumulative) of making that move. At the end of a game, it stores these weights and uses them in the next game. Ideally it will converge on the optimal set of weights.
 
 **How to use this project**:
