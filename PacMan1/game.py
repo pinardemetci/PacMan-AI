@@ -86,9 +86,9 @@ class Configuration:
     def getDirection(self):
         return self.direction
 
-    def isInteger(self):
-        x,y = self.pos
-        return x == int(x) and y == int(y)
+    # def isInteger(self):
+    #     x,y = self.pos
+    #     return x == int(x) and y == int(y)
 
     def __eq__(self, other):
         if other == None: return False
@@ -117,6 +117,20 @@ class Configuration:
             direction = self.direction # There is no stop direction
         return Configuration((x + dx, y+dy), direction)
 
+
+    def vectorToDirection(vector):
+        dx, dy = vector
+        if dy > 0:
+            return Directions.NORTH
+        if dy < 0:
+            return Directions.SOUTH
+        if dx < 0:
+            return Directions.WEST
+        if dx > 0:
+            return Directions.EAST
+        return Directions.STOP
+    vectorToDirection = staticmethod(vectorToDirection)
+
 class AgentState:
     """
     AgentStates hold the state of an agent (configuration, speed, scared, etc).
@@ -129,6 +143,7 @@ class AgentState:
         self.scaredTimer = 0 
         self.numCarrying = 0
         self.numReturned = 0
+        # print "hello! I am an Agent State"
 
     def __str__( self ):
         if self.isPacman:
@@ -170,6 +185,7 @@ class Grid(object):
     def __init__(self, width, height, initialValue=False, bitRepresentation=None):
         if initialValue not in [False, True]: raise Exception('Grids can only contain booleans')
         self.CELLS_PER_INT = 30 #Why are you 30?
+
 
         self.width = width
         self.height = height
