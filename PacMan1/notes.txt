@@ -1,0 +1,112 @@
+DESIGN REVIEW NOTES
+
+Q function instead of Q  matrix
+
+Feature vectors with weights
+
+This is most similar to the local representation of pacman
+
+Encode it as a list of weights
+
+Share knowledge across very similar states
+
+pybrain
+
+R is a function of the state -- this would include whether pacman had eaten a capsule
+
+Neurogammon Tesauro
+
+# states so large you can't enumerate
+
+How do the berkely people approach the same problem? 
+
+Instead of making actions 1-step things, think about them as being "go toward the pellet" or "go away from ghost"
+
+Continuously updating long-term plan - execute astar 
+
+Higher level - build it as block strategies 
+	calculate maximum pellet intake 
+
+
+
+Q features
+- distance to every ghost
+- state of every ghost (scared or not)
+- distance to every capsule
+- 
+
+R takes in a state and returns... what exactly
+
+
+What's the task?
+Win the game == eat all the pellets
+
+
+states:
+eating pellets
+avoiding ghost(s)
+chasing ghost(s)
+but you could be doing literally all of those at the same time...
+
+everytime you get a pellet it should be a reward; everytime you get a capsule it should be a bigger reward;
+
+
+What should we do for our code review??
+
+
+%% April 14 2015
+
+Q* is for the best policy
+Q learning learns Q* directly, and that is the cool thing
+"off-poilcy learning method"
+
+algorithm depends on visiting every state and trying every action, so random wouldn't exactly work
+
+start state, action, end state, reward
+
+each entry in the table is Q*(s, a)
+
+replace the table with a function approximator
+
+simplest possible thing you can do (WE SHOULD START HERE):
+Q*(s, a) = sum[i=1:d](phi_i(s, a)* w_i) + b
+phi_i maps s and a to a real number
+d = # of features
+	one feature could be: after the pacman executes this action (from this state), how far away from goal will it be?
+w are the weights
+phi functions are basis functions
+
+key is to give it features that will make it work
+
+in our case we'd give it (phi(s,a), r, phi(s', a'))
+
+matrix is linear combination of small set of features that we give it
+space of matricies you're searching over becomes smaller
+
+write different agents with different features??
+
+no longer learning cells, just learning weights to apply to basis function
+
+feature engineering
+run good experiments to see if those features work
+
+implement one of the q learning algorithms?
+pybrain (gaby ewall)
+
+reinforcement learnign in continuous states
+"neuro fitted q learning" pybrain
+rich sutton, andy bartow "reinforcement learning: an introduction"
+
+find a package that works
+do a SUPPER SIMPLE pacman (the one row)
+calculate by hand what the q* value should be, see what it converges to
+
+look into custom layouts (1d with a ghost and a pellet and a goal)
+
+compare high level actions to low level actions
+
+pi*(s) = argmax(sum[i=1:d](phi_i(s, a)* w_i) + b) for all  actions
+
+"on demand evaluation" for states you actually end up going to
+
+neuro fitted would allow you to do nonlinear (i.e. neural nets let you do this)
