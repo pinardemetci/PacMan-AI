@@ -25,7 +25,7 @@ class SimpleQPacman(Agent):
     exploraitonRate: probability that pacman will explore, instead of using optimal action
     """
 
-    def __init__(self, fromPickle=True):
+    def __init__(self, fromPickle=True, learningRate=0.0001, discountFactor=0.3, explorationRate=0.05):
         """
         Pickling the feature weights for agent to learn from its actions in previous GameState
         """
@@ -43,9 +43,9 @@ class SimpleQPacman(Agent):
             ]
 
         self.tiles = {}
-        self.learningRate = 0.0001
-        self.discountFactor = 0.3
-        self.explorationRate = 0.05
+        self.learningRate = float(learningRate)
+        self.discountFactor = float(discountFactor)
+        self.explorationRate = float(explorationRate)
 
         super(Agent, self).__init__()
 
