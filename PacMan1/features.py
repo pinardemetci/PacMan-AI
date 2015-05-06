@@ -1,3 +1,8 @@
+"""
+@authors: Kelly Brennan, Stephanie Norway and Pinar Demetci
+All of the possible features that can be incorporated into Q-learning algorithm
+"""
+
 import random
 from util import manhattanDistance
 from util2 import Astar
@@ -59,17 +64,17 @@ class NearestCapsuleFeature(Feature):
 
         state: GameState object
         costs: tile object of game layout
+        return: (float) if capsules present, return minimum distance to capsule
+            otherwise return the manhattanDistance of the layout board, making pacman think they are far away 
         """
-        pos = state.getPacmanPosition()  # position of PacMan
-        capsules = state.getCapsules()  # state of each capsule
+        pos = state.getPacmanPosition()  
+        capsules = state.getCapsules()  
 
-        # if there are capsules, return the minimum distance to a capsule
         if len(capsules) > 0:
             caps_dists = [Astar(state, pos, c, state.data.layout, costs) for c in capsules]
             return min(caps_dists)
-        # otherwise, return the largest distance possible in the layout so it thinks capsules are just far away.
         else:
-            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height)) #manhattanDistance between 2 corners in the layout.
+            return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height)) 
 
 
 class NearestNormalGhostFeature(Feature):
@@ -84,6 +89,8 @@ class NearestNormalGhostFeature(Feature):
 
         state: GameState object
         costs: tile object of game layout
+        return: (float) if normal ghosts present, return minimum distance to normal ghost
+            otherwise return the manhattanDistance of the layout board, making pacman think they are far away
         """
         pos = state.getPacmanPosition()
         ghosts = state.getGhostStates()
@@ -92,9 +99,7 @@ class NearestNormalGhostFeature(Feature):
         if len(normal_ghosts) > 0:
             normal_ghost_dists = [Astar(state, pos, n.getPosition(), state.data.layout, costs) for n in normal_ghosts]
             return min(normal_ghost_dists)
-            # if there are no ghosts:
         else:
-            # return the largest distance possible
             return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
 
 
@@ -110,17 +115,16 @@ class NearestScaredGhostFeature(Feature):
 
         state: GameState object
         costs: tile object of game layout
+        return: (float) if scared ghosts present, return minimum distance to scared ghost
+            otherwise return the manhattanDistance of the layout board, making pacman think they are far away
         """
         pos = state.getPacmanPosition()
-        ghosts = state.getGhostStates()  # state of all the ghosts.
+        ghosts = state.getGhostStates()  
         scared_ghosts = filter(lambda g: g.scaredTimer > 0, ghosts)  # filters the ones that are in scared time.
-
         # After PacMan eats a capsule, scared time starts.
-        # When there are scared ghosts, return A-star distance to the nearest one
         if len(scared_ghosts) > 0:
             scared_ghost_dists = [Astar(state, pos, s.getPosition(), state.data.layout, costs) for s in scared_ghosts]
             return min(scared_ghost_dists)
-        # If none exists, return the largest distance possible, making PacMan think they are just really far. 
         else:
             return manhattanDistance((0, 0), (state.data.layout.width, state.data.layout.height))
 
@@ -137,6 +141,7 @@ class TotalFoodFeature(Feature):
 
         state: GameState object
         costs: tile object of game layout - not used here
+        return: number of total food on the board (float)
         """
         return state.getNumFood()
 
@@ -153,16 +158,14 @@ class NearestFoodFeature(Feature):
 
         state: GameState object
         costs: tile object of game layout - not used here
+        return: (float) if food exists, manhattanDistance to nearest food pellet
+            otherwise, return 0 (Game has been won)
         """
         pos = state.getPacmanPosition()
-        # if food exists:
         if state.getNumFood() > 0:
-            # return the manhattanDistance to the nearest food
             foodDistances = [manhattanDistance(pos, f) for f in state.getFood().asList()]
             return min(foodDistances)
-        # if all food is consumed
         else:
-            # it actually means game is won, return 0.
             return 0
 
 
@@ -176,5 +179,6 @@ class ScoreFeature(Feature):
 
         state: GameState object
         costs: tile object of game layout - not used here
+        return: weighted score (float)
         """
         return state.getScore() * 0.01  # multiply constant to manage weight values from becoming exceedingly large

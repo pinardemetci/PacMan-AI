@@ -1,5 +1,5 @@
 """
-@author: kbrennan
+@author: Kelly Brennan, Stephanie Norway and Pinar Demetci
 Our own utility functions and classes.
 """
 
@@ -48,8 +48,11 @@ def initializeTiles(layout):
 """Probably do not need this any more"""
 def DepthFirstSearch(state, start, costs, closed_list=[]):
     """
-    Depth-first search algorithm to find close food pellets faster than running
+    Depth-first search algorithm to find close food pellets with greater computational efficiency than running
     Astar on every position with food.
+    Recursive function, until it finds a food pellet
+    First, finds a list of open adjacent coordinates. If food at coordinate, return distance from Pacman
+        Otherwise, run function with new coordinate input
 
     state: the GameState object
     start: (x, y) coordinates from which to start the search
@@ -58,19 +61,13 @@ def DepthFirstSearch(state, start, costs, closed_list=[]):
     returns: Astar distance to the closest food pellet
     """
     closed_list.append(start)  # start position is off limits
-    # find open adjacent coordinates
     open_coords = get_open_adj_coords_DFS(state, start, state.data.layout)
-
     for coord in open_coords:
-        # if there is food at this coordinate, return the distance from Pacman
         if state.hasFood(*coord):
             astar_distance = Astar(state, start, coord, state.data.layout, costs)
-            print "Astar value DFS", astar_distance
             return astar_distance
-        # otherwise, recurse
         elif coord not in closed_list:
             DepthFirstSearch(state, coord, costs, closed_list)
-        # othe
         else:
             pass
 
@@ -149,7 +146,6 @@ def get_open_adj_coords(state, coords, layout):
     return adj_coords, costs
 
 
-"""Probably do not need this"""
 def get_open_adj_coords_DFS(state, coords, layout):
     """
     Get open adjacent coordinates for the DepthFirstSearch function.
